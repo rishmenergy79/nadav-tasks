@@ -436,11 +436,11 @@ const PX_PER_MIN = 1; // 60px לשעה
 
 const STATUS = {
   todo:     { label: 'יש לטפל',     bg: '#FDEBD8', bd: '#E07B1F', fg: '#8A3D06', emoji: '🟠' },
-  bad:      { label: 'לא תקין',     bg: '#FBE1E0', bd: '#D33A2C', fg: '#8F1D14', emoji: '🔴' },
-  done:     { label: 'ממתין לתגובה', bg: '#E0F3E7', bd: '#1E9A52', fg: '#145A32', emoji: '🟢' },
+  done:     { label: 'ממתין למענה', bg: '#E0F3E7', bd: '#1E9A52', fg: '#145A32', emoji: '🟢' },
   approved: { label: 'בוצע ואושר', bg: '#DDF1FB', bd: '#1D9BD7', fg: '#0B5A80', emoji: '🔵' },
+  bad:      { label: 'לא תקין',     bg: '#FBE1E0', bd: '#D33A2C', fg: '#8F1D14', emoji: '🔴' },
 };
-const STATUS_ORDER = ['todo', 'bad', 'done', 'approved'];
+const STATUS_ORDER = ['todo', 'done', 'approved', 'bad'];
 const CATS = { iec: 'חח"י ורגולציה', clients: 'לקוחות ושטח', internal: 'פנימי' };
 const DAY_NAMES = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
 const DAY_SHORT = ["א'", "ב'", "ג'", "ד'", "ה'", "ו'", "ש'"];
@@ -1319,7 +1319,7 @@ function ShareSheet({ task, tasks, onClose, toast }) {
         <span className="lbl">מה לשתף</span>
         <div className="chips">{scopes.map(([k, l]) => <button key={k} type="button" aria-pressed={scope === k} onClick={() => setScope(k)}>{l}</button>)}</div>
       </div>
-      {scope !== 'task' && <label className="tgl" style={{ marginBottom: 8 }}><input type="checkbox" checked={incDone} onChange={(e) => setIncDone(e.target.checked)} />לכלול משימות שממתינות לתגובה או אושרו</label>}
+      {scope !== 'task' && <label className="tgl" style={{ marginBottom: 8 }}><input type="checkbox" checked={incDone} onChange={(e) => setIncDone(e.target.checked)} />לכלול משימות שממתינות למענה או אושרו</label>}
       <div className="fld"><span className="lbl">תצוגה מקדימה</span><pre className="share-pre" data-testid="share-preview">{text}</pre></div>
     </Modal>
   );
@@ -1622,7 +1622,7 @@ function App({ store, user, onLogout }) {
   const [agendaDay, setAgendaDay] = useState(todayStr());
   const [showWeekend, setShowWeekend] = useState(() => { try { return localStorage.getItem('nadav-weekend') === '1'; } catch (e) { return false; } });
   const [focusId, setFocusId] = useState(null);
-  const [stFilter, setStFilter] = useState({ todo: true, bad: true, done: true, approved: true });
+  const [stFilter, setStFilter] = useState({ todo: true, done: true, approved: true, bad: true });
   const toastTimer = useRef(null);
 
   useEffect(() => {
