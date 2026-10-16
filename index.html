@@ -1,0 +1,1846 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>המשימות של נדב</title>
+<meta name="theme-color" content="#2457C5">
+<meta name="description" content="ניהול משימות אישי – לוח יומי, שבוע וחודש, מסונכרן בין טלפון למחשב">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="משימות">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:#F4F3EF; --card:#FFFFFF; --ink:#1B1F24; --ink2:#4A5260; --ink3:#7A818C;
+  --line:#E3E1DA; --line2:#ECEAE4; --grid:#CFCBC1; --grid-half:#E4E1D9; --accent:#2457C5; --accent-soft:#E6ECFA;
+  --todo-bg:#FDEBD8; --todo-bd:#E07B1F; --todo-fg:#8A3D06;
+  --bad-bg:#FBE1E0;  --bad-bd:#D33A2C;  --bad-fg:#8F1D14;
+  --done-bg:#E0F3E7; --done-bd:#1E9A52; --done-fg:#145A32;
+  --appr-bg:#DDF1FB; --appr-bd:#1D9BD7; --appr-fg:#0B5A80;
+  --radius:12px; --shadow:0 1px 2px rgba(27,31,36,.06),0 2px 8px rgba(27,31,36,.05);
+  --shadow-lg:0 12px 40px rgba(27,31,36,.18);
+  --ticker-h:40px; --tabbar-h:0px; --hour:60px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--ground);color:var(--ink);font-family:'Rubik',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:15px;line-height:1.4;-webkit-font-smoothing:antialiased;padding-bottom:calc(var(--ticker-h) + var(--tabbar-h) + env(safe-area-inset-bottom));overflow-x:hidden}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ico{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ico.sm{width:16px;height:16px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- header ---------- */
+.hdr{position:sticky;top:0;z-index:30;background:rgba(244,243,239,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.hdr-in{max-width:1600px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:10px 20px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;white-space:nowrap}
+.brand-mark{width:34px;height:34px;border-radius:9px;background:var(--accent);display:grid;place-items:center;color:#fff}
+.seg{display:flex;background:#E9E7E0;border-radius:10px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;padding:8px 14px;border-radius:8px;display:flex;align-items:center;gap:6px;color:var(--ink2);font-weight:500;min-height:40px}
+.seg button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:var(--shadow)}
+.seg button.soon{opacity:.75}
+.spacer{flex:1}
+.search{position:relative;display:flex;align-items:center}
+.search .ico{position:absolute;right:10px;color:var(--ink3);pointer-events:none}
+.search input{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 36px 9px 32px;width:240px;min-height:42px}
+.search .clr{position:absolute;left:4px;border:0;background:transparent;width:32px;height:32px;display:grid;place-items:center;color:var(--ink3);border-radius:8px}
+.btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 14px;min-height:42px;display:inline-flex;align-items:center;justify-content:center;gap:7px;font-weight:500;color:var(--ink);white-space:nowrap}
+a.btn{text-decoration:none}
+.btn:hover{border-color:#cfccc3}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:#1d4aad}
+.btn.danger{color:var(--bad-fg);border-color:#f0c4c0}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.icon{padding:0;width:42px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.banner{background:#FFF6E0;border-bottom:1px solid #F0DDAE;color:#6B4E00;font-size:13.5px;padding:7px 20px;display:flex;align-items:center;gap:8px;justify-content:center}
+.srow{max-width:1600px;margin:0 auto;padding:0 20px 10px;position:relative}
+.srow .sbox{position:relative;display:flex;align-items:center}
+.srow input::-webkit-search-cancel-button{-webkit-appearance:none;display:none}
+.srow .sbox .sic{display:grid;position:absolute;right:14px;color:var(--ink3);pointer-events:none}
+.srow input{width:100%;border:1.5px solid var(--grid);background:#fff;border-radius:12px;padding:11px 44px 11px 44px;min-height:46px;font:inherit;font-size:15px}
+.srow input:focus{outline:none;border-color:#1D9BD7;box-shadow:0 0 0 3px rgba(29,155,215,.18)}
+.srow .clr{position:absolute;left:6px;border:0;background:transparent;width:36px;height:36px;display:grid;place-items:center;color:var(--ink3);border-radius:8px;cursor:pointer}
+.sres{position:absolute;right:20px;left:20px;top:calc(100% - 4px);background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.14);max-height:min(60vh,440px);overflow:auto;z-index:40}
+.sres-h{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--line);font-size:13px;color:var(--ink3);position:sticky;top:0;background:#fff}
+.sres-h .sp{flex:1}
+.sres-h button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:5px 10px;font:inherit;font-size:13px;cursor:pointer}
+.sres-it{display:flex;align-items:center;gap:10px;width:100%;text-align:right;border:0;border-bottom:1px solid #f0eee9;background:transparent;padding:10px 12px;font:inherit;cursor:pointer}
+.sres-it:hover,.sres-it.hi{background:#F4F3EF}
+.sres-it .dot{width:10px;height:10px;border-radius:50%;flex:none}
+.sres-it .tt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sres-it .mt{color:var(--ink3);font-size:12.5px;white-space:nowrap}
+.sres-empty{padding:16px 12px;color:var(--ink3);font-size:14px}
+.main{max-width:1600px;margin:0 auto;padding:18px 20px 24px}
+
+/* ---------- common ---------- */
+.h1{font-size:22px;font-weight:700;margin:0}
+.sub{color:var(--ink3);font-size:13.5px}
+.panel{background:var(--card);border:1px solid var(--line2);border-radius:var(--radius);box-shadow:var(--shadow)}
+.tag{display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:2px 8px;border-radius:999px;background:#EFEEE9;color:var(--ink2);white-space:nowrap}
+.tag.iec{background:#E8EEFB;color:#1E3F8F}
+.tag.clients{background:#F1EBFA;color:#5B3592}
+.tag.internal{background:#EEEDE8;color:#4A5260}
+.tag.urgent{background:var(--bad-bg);color:var(--bad-fg)}
+.tag.deadline{background:#FFF1CC;color:#7A5300}
+.dot{width:9px;height:9px;border-radius:50%;flex:none;display:inline-block}
+
+/* progress */
+.prog{display:flex;align-items:center;gap:14px;margin:12px 0 18px}
+.prog-bar{flex:1;height:12px;border-radius:999px;background:#E7E5DE;display:flex;overflow:hidden;gap:2px}
+.prog-bar span{height:100%}
+.prog-txt{font-weight:600;white-space:nowrap}
+
+/* ---------- board ---------- */
+.board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;align-items:start}
+.col{border-radius:var(--radius);padding:10px;min-height:220px;border:2px dashed transparent;transition:border-color .12s,background .12s}
+.col.over{border-color:currentColor}
+.col-h{display:flex;align-items:center;gap:8px;font-weight:600;padding:4px 4px 10px}
+.col-h .cnt{margin-inline-start:auto;background:rgba(255,255,255,.7);border-radius:999px;padding:1px 9px;font-size:13px}
+.col .empty{font-size:13px;color:var(--ink3);text-align:center;padding:22px 6px;border:1px dashed rgba(0,0,0,.12);border-radius:10px}
+.card{position:relative;background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:8px;box-shadow:var(--shadow);border-inline-start:4px solid var(--bd);cursor:pointer}
+.card[draggable="true"]{cursor:grab}
+.card.dragging{opacity:.4}
+.card:hover{box-shadow:0 2px 4px rgba(27,31,36,.08),0 6px 16px rgba(27,31,36,.08)}
+.card-t{font-weight:600;margin:0 0 4px;font-size:15px;word-break:break-word}
+.card-meta{display:flex;flex-wrap:wrap;gap:6px 10px;color:var(--ink2);font-size:13px;align-items:center}
+.card-meta>span{display:inline-flex;align-items:center;gap:4px}
+.card-foot{display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap}
+.chipwrap{position:relative;display:inline-block}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--bd);background:var(--bg);color:var(--fg);border-radius:999px;padding:4px 10px;font-size:13px;font-weight:500;min-height:32px}
+.menu{position:absolute;top:calc(100% + 4px);inset-inline-start:0;z-index:40;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow-lg);padding:4px;min-width:170px}
+.menu button{display:flex;width:100%;align-items:center;gap:8px;border:0;background:transparent;padding:10px;border-radius:8px;text-align:start;min-height:44px}
+.menu button:hover,.menu button[aria-checked="true"]{background:#F3F2EE}
+.strip{margin-top:20px}
+.strip-h{display:flex;align-items:center;gap:8px;border:0;background:transparent;font-weight:600;padding:8px 0;min-height:44px}
+.strip-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.strip-list .card{margin:0}
+
+/* ---------- week ---------- */
+.wk-wrap{display:grid;grid-template-columns:280px minmax(0,1fr);gap:18px;align-items:start}
+.side{display:flex;flex-direction:column;gap:14px}
+.wk-wrap>div{min-width:0}
+.side .panel{padding:12px}
+.side h3{margin:0 0 8px;font-size:14px;font-weight:600;color:var(--ink2)}
+.mini-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;font-weight:600}
+.mini-h button{border:0;background:transparent;width:32px;height:32px;border-radius:8px;display:grid;place-items:center}
+.mini-h button:hover{background:#F0EEE8}
+.mini{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center;font-size:12.5px}
+.mini .dn{color:var(--ink3);padding:3px 0}
+.mini button{border:0;background:transparent;border-radius:7px;height:32px;position:relative;padding:0}
+.mini button.out{color:#B5B9C0}
+.mini button.inweek{background:var(--accent-soft)}
+.mini button.today{color:#fff;background:var(--accent);font-weight:600}
+.mini button .has{position:absolute;bottom:3px;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--todo-bd)}
+.mini button.today .has{background:#fff}
+.flt label{display:flex;align-items:center;gap:8px;padding:6px 2px;min-height:36px;cursor:pointer}
+.flt input{width:18px;height:18px;accent-color:var(--accent)}
+.flt .n{margin-inline-start:auto;color:var(--ink3);font-size:13px}
+.wait{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow:auto}
+.wait-it{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 10px;cursor:grab;font-size:13.5px;border-inline-start:4px solid var(--bd);text-align:start}
+.wait-empty{color:var(--ink3);font-size:13px}
+.qadd{display:flex;gap:6px}
+.qadd input{flex:1;min-width:0;border:1px solid var(--line);border-radius:9px;padding:9px 10px;min-height:42px}
+.wk-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.wk-top .h1{margin-inline-end:10px}
+.tgl{display:inline-flex;align-items:center;gap:8px;font-size:14px;color:var(--ink2);cursor:pointer;min-height:42px}
+.tgl input{width:18px;height:18px;accent-color:var(--accent)}
+.wk-scroll{overflow-x:auto;background:#fff;border:1px solid var(--grid);border-radius:var(--radius);box-shadow:var(--shadow)}
+.wk{min-width:640px}
+.wk-row{display:grid}
+.wk-dh{padding:8px 6px;text-align:center;border-bottom:1px solid var(--line);border-inline-start:1px solid var(--grid)}
+.wk-dh .d1{font-size:13px;color:var(--ink3)}
+.wk-dh .d2{font-size:20px;font-weight:600;line-height:1.2}
+.wk-dh.today .d2{color:#fff;background:var(--accent);border-radius:999px;display:inline-block;min-width:34px;padding:0 6px}
+.wk-dh.today .d1{color:var(--accent);font-weight:600}
+.wk-ad{border-bottom:1px solid var(--line);border-inline-start:1px solid var(--grid);padding:4px;min-height:44px;display:flex;flex-direction:column;gap:3px}
+.wk-ad.over,.wk-day.over{background:#F1F5FF}
+.wk-adl{font-size:11.5px;color:var(--ink3);display:flex;align-items:center;justify-content:center;text-align:center;border-bottom:1px solid var(--line);padding:2px}
+.pill{border:0;border-inline-start:3px solid var(--bd);background:var(--bg);color:var(--fg);border-radius:6px;padding:3px 6px;font-size:12.5px;text-align:start;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:4px;min-height:24px;width:100%}
+.wk-gut{position:relative}
+.wk-gut span{position:absolute;inset-inline-end:8px;transform:translateY(-50%);font-size:11.5px;color:var(--ink3)}
+.wk-day{position:relative;border-inline-start:1px solid var(--grid);background-image:repeating-linear-gradient(to bottom,var(--grid) 0,var(--grid) 1px,transparent 1px,transparent var(--hour)),repeating-linear-gradient(to bottom,transparent 0,transparent calc(var(--hour)/2),var(--grid-half) calc(var(--hour)/2),var(--grid-half) calc(var(--hour)/2 + 1px),transparent calc(var(--hour)/2 + 1px),transparent var(--hour));cursor:copy}
+.wk-day.istoday{background-color:#FAFBFF}
+.blk{position:absolute;border-radius:7px;background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-inline-start:4px solid var(--bd);padding:3px 6px;font-size:12.5px;overflow:hidden;cursor:grab;text-align:start;line-height:1.25;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.blk .bt{font-weight:600;display:block;overflow:hidden;text-overflow:ellipsis}
+.blk.short .bt{white-space:nowrap}
+.blk .bm{opacity:.85;font-size:11.5px;display:flex;gap:4px;align-items:center;white-space:nowrap}
+.blk.dragging{opacity:.35}
+.blk.flash{animation:flash 1.4s ease 2}
+@keyframes flash{0%,100%{box-shadow:0 0 0 0 rgba(36,87,197,0)}50%{box-shadow:0 0 0 4px rgba(36,87,197,.45)}}
+.now{position:absolute;inset-inline:0;height:2px;background:#D33A2C;pointer-events:none;z-index:5}
+.now::before{content:"";position:absolute;inset-inline-start:-5px;top:-4px;width:10px;height:10px;border-radius:50%;background:#D33A2C}
+.ghost-slot{position:absolute;inset-inline:2px;height:15px;background:rgba(36,87,197,.12);border-radius:4px;pointer-events:none}
+
+/* ---------- month ---------- */
+.mo-top{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.mo{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));background:#fff;border:1px solid var(--line2);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.mo .dn{padding:8px;text-align:center;font-size:13px;color:var(--ink3);border-bottom:1px solid var(--line)}
+.mo-c{min-height:116px;border-bottom:1px solid var(--grid);border-inline-start:1px solid var(--grid);padding:6px;cursor:pointer;display:flex;flex-direction:column;gap:3px;text-align:start;background:#fff;border-top:0;border-inline-end:0;font:inherit}
+.mo-c:hover{background:#FAFAF7}
+.mo-c.out{background:#FAF9F6;color:#A3A8B0}
+.mo-n{font-size:13px;font-weight:600;align-self:flex-start;min-width:26px;height:26px;border-radius:999px;display:grid;place-items:center}
+.mo-c.today .mo-n{background:var(--accent);color:#fff}
+.mo-more{font-size:12px;color:var(--ink3);padding-inline-start:4px}
+
+/* ---------- agenda (mobile) ---------- */
+.ag-strip{display:grid;grid-template-columns:36px repeat(7,minmax(0,1fr)) 36px;gap:3px;align-items:center;margin:4px 0 10px}
+.ag-strip .nav{border:0;background:transparent;height:44px;border-radius:8px;display:grid;place-items:center}
+.ag-day{border:1px solid transparent;background:#fff;border-radius:10px;padding:5px 0 6px;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:58px}
+.ag-day .w{font-size:11.5px;color:var(--ink3)}
+.ag-day .n{font-weight:600;font-size:16px}
+.ag-day .ds{display:flex;gap:2px;height:6px}
+.ag-day .ds i{width:5px;height:5px;border-radius:50%}
+.ag-day.sel{border-color:var(--accent);background:var(--accent-soft)}
+.ag-day.today .n{color:var(--accent)}
+.ag-list .card{margin-bottom:10px}
+.mini-btn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 12px;min-height:36px;display:inline-flex;align-items:center;gap:5px;font-size:13px;color:var(--ink2)}
+.fab{position:fixed;left:16px;bottom:calc(var(--ticker-h) + var(--tabbar-h) + 14px + env(safe-area-inset-bottom));width:56px;height:56px;border-radius:50%;background:var(--accent);color:#fff;border:0;display:grid;place-items:center;box-shadow:0 6px 18px rgba(36,87,197,.4);z-index:25}
+.fab .ico{width:26px;height:26px}
+
+/* ---------- mail placeholder ---------- */
+.mail{max-width:640px;margin:20px auto;padding:28px;text-align:center}
+.mail .big{width:64px;height:64px;border-radius:16px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;margin:0 auto 14px}
+.mail .big .ico{width:32px;height:32px}
+.mail ol{text-align:start;color:var(--ink2);line-height:1.8;padding-inline-start:20px}
+
+/* ---------- overlays ---------- */
+.ov{position:fixed;inset:0;background:rgba(27,31,36,.38);z-index:60;display:flex;align-items:center;justify-content:center;padding:20px;animation:fade .12s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.modal{background:#fff;border-radius:16px;box-shadow:var(--shadow-lg);width:min(620px,100%);max-height:calc(100vh - 40px);display:flex;flex-direction:column}
+.modal.sm{width:min(400px,100%)}
+.ov.top{z-index:70}
+.m-h{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid var(--line2)}
+.m-h h2{margin:0;font-size:18px;flex:1}
+.m-b{padding:16px 18px;overflow:auto}
+.m-f{display:flex;gap:8px;padding:12px 18px;border-top:1px solid var(--line2);flex-wrap:wrap}
+.fld{margin-bottom:14px}
+.fld>label,.fld>.lbl{display:block;font-size:13px;font-weight:500;color:var(--ink2);margin-bottom:6px}
+.inp{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px;background:#fff}
+textarea.inp{min-height:80px;resize:vertical}
+.inp.title{font-size:17px;font-weight:600}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row3{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;min-height:38px;font-size:14px}
+.chips button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.stsel{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.stsel button{border:1.5px solid var(--bd);background:#fff;color:var(--fg);border-radius:10px;padding:8px 4px;min-height:44px;font-weight:500;font-size:14px;display:flex;align-items:center;justify-content:center;gap:6px}
+.stsel button[aria-pressed="true"]{background:var(--bg);box-shadow:inset 0 0 0 1.5px var(--bd)}
+.sw{display:flex;align-items:center;gap:10px;border:0;background:transparent;padding:6px 0;min-height:44px}
+.sw .tr{width:42px;height:24px;border-radius:999px;background:#D7D5CE;position:relative;transition:background .15s}
+.sw .tr::after{content:"";position:absolute;top:3px;right:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:right .15s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.sw[aria-checked="true"] .tr{background:var(--accent)}
+.sw[aria-checked="true"] .tr::after{right:21px}
+.err{color:var(--bad-fg);font-size:13px;margin-top:4px}
+
+.drawer{position:fixed;top:0;bottom:0;left:0;width:min(400px,100%);background:#fff;z-index:61;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;animation:slidein .16s ease}
+@keyframes slidein{from{transform:translateX(-24px);opacity:.4}to{transform:none;opacity:1}}
+.dr-h{padding:16px 18px;border-bottom:1px solid var(--line2);display:flex;gap:10px;align-items:flex-start}
+.dr-h h2{margin:0;font-size:19px;flex:1;word-break:break-word}
+.dr-b{padding:16px 18px;overflow:auto;flex:1}
+.kv{display:flex;align-items:center;gap:10px;padding:8px 0;color:var(--ink2);border-bottom:1px solid var(--line2)}
+.kv b{color:var(--ink);font-weight:500}
+.dr-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:14px 18px;border-top:1px solid var(--line2)}
+.notes{white-space:pre-wrap;background:#F8F7F3;border-radius:10px;padding:10px 12px;margin-top:12px;color:var(--ink2)}
+
+.share-pre{white-space:pre-wrap;background:#EFEAE2;border-radius:12px;padding:12px 14px;font-size:14px;max-height:280px;overflow:auto;direction:rtl;font-family:inherit;margin:0;border:1px solid #E2DCD1}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--ticker-h) + var(--tabbar-h) + 20px);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;z-index:80;box-shadow:var(--shadow-lg);font-size:14px;animation:fade .15s ease}
+
+/* ---------- ticker ---------- */
+.ticker{position:fixed;inset-inline:0;bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom));height:var(--ticker-h);background:#1B1F24;color:#fff;display:flex;align-items:center;z-index:35;overflow:hidden}
+.tk-lbl{background:var(--accent);height:100%;display:flex;align-items:center;gap:6px;padding:0 14px;font-weight:600;font-size:13.5px;white-space:nowrap;flex:none;z-index:2}
+.tk-vp{flex:1;overflow:hidden;height:100%;position:relative}
+.tk-track{display:flex;width:max-content;height:100%;align-items:center;animation:tk var(--tk-dur,40s) linear infinite}
+.tk-vp:hover .tk-track,.tk-vp:focus-within .tk-track{animation-play-state:paused}
+@keyframes tk{from{transform:translateX(0)}to{transform:translateX(50%)}}
+.tk-it{border:0;background:transparent;color:#E8EAED;display:inline-flex;align-items:center;gap:7px;padding:0 18px;height:100%;white-space:nowrap;font-size:13.5px;border-inline-end:1px solid rgba(255,255,255,.12)}
+.tk-it:hover{color:#fff;background:rgba(255,255,255,.06)}
+.tk-it .tm{color:#9AA4B2;font-variant-numeric:tabular-nums}
+.tk-empty{padding:0 16px;color:#9AA4B2;font-size:13.5px}
+@media (prefers-reduced-motion: reduce){
+  .tk-track{animation:none}
+  .tk-vp{overflow-x:auto}
+  .blk.flash{animation:none;box-shadow:0 0 0 3px rgba(36,87,197,.45)}
+}
+
+/* ---------- כל המשימות (dropdown) ---------- */
+.atm{position:relative;flex:none}
+.atm-btn{gap:8px}
+.atm-btn .cnt{background:var(--todo-bg);color:var(--todo-fg);border-radius:999px;padding:1px 8px;font-size:13px;font-weight:600;min-width:24px;text-align:center}
+.atm-btn[aria-expanded="true"]{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.atm-btn[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.atm-btn .chev{transition:transform .15s}
+.atm-pop{position:absolute;top:calc(100% + 8px);right:0;width:420px;max-width:calc(100vw - 32px);max-height:70vh;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow-lg);z-index:50;display:flex;flex-direction:column;overflow:hidden;animation:fade .12s ease}
+.atm-sheet-ov{position:fixed;inset:0;background:rgba(27,31,36,.38);z-index:60;animation:fade .12s ease}
+.atm-sheet{position:fixed;inset-inline:0;bottom:0;max-height:82vh;background:#fff;border-radius:16px 16px 0 0;box-shadow:var(--shadow-lg);z-index:61;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom);animation:up .18s ease}
+@keyframes up{from{transform:translateY(30px);opacity:.5}to{transform:none;opacity:1}}
+.atm-top{padding:12px 12px 8px;display:flex;flex-direction:column;gap:8px;border-bottom:1px solid var(--line2)}
+.atm-sh{display:flex;align-items:center;gap:8px;font-weight:600;font-size:16px}
+.atm-sh span{flex:1}
+.atm-q{position:relative;display:flex;align-items:center}
+.atm-q .ico{position:absolute;right:10px;color:var(--ink3);pointer-events:none}
+.atm-q input{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 34px 9px 12px;min-height:44px;background:#fff}
+.atm-seg{display:grid;grid-template-columns:repeat(4,1fr);background:#E9E7E0;border-radius:10px;padding:3px;gap:2px}
+.atm-seg button{border:0;background:transparent;border-radius:8px;min-height:36px;font-size:14px;color:var(--ink2);font-weight:500;display:flex;align-items:center;justify-content:center;gap:5px}
+.atm-seg button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:var(--shadow)}
+.atm-seg .n{font-size:12px;color:var(--ink3)}
+.atm-list{overflow:auto;padding:4px;flex:1;min-height:0;margin:0;list-style:none}
+.atm-it{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:9px;cursor:pointer;min-height:48px}
+.atm-it[aria-selected="true"]{background:var(--accent-soft)}
+.atm-it .tx{flex:1;min-width:0}
+.atm-it .tt{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.atm-it.done .tt{color:var(--ink3);text-decoration:line-through;text-decoration-color:rgba(0,0,0,.25)}
+.atm-it .mt{font-size:12.5px;color:var(--ink3);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.atm-it .wh{font-size:12.5px;color:var(--ink2);white-space:nowrap;font-variant-numeric:tabular-nums;flex:none}
+.atm-it .wh.late{color:var(--bad-fg);font-weight:500}
+.atm-it .urg{color:var(--bad-bd);flex:none;display:flex}
+.atm-empty{padding:26px 12px;text-align:center;color:var(--ink3);font-size:14px}
+.atm-foot{border-top:1px solid var(--line2);padding:6px 12px;font-size:12px;color:var(--ink3);display:flex;gap:12px}
+.atm-foot kbd{font-family:inherit;background:#F0EEE8;border-radius:4px;padding:0 5px;border:1px solid var(--line)}
+
+/* ---------- תצוגת רשימה ---------- */
+.ls-top{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;margin-bottom:14px}
+.ls-top .h1 .sub{font-weight:400;font-size:15px}
+.ls-ctl{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ls-ctl .lbl{font-size:13px;color:var(--ink3)}
+.ls-seg{display:flex;background:#E9E7E0;border-radius:10px;padding:3px;gap:2px}
+.ls-seg button{border:0;background:transparent;border-radius:8px;padding:6px 12px;min-height:38px;font-size:14px;color:var(--ink2);font-weight:500}
+.ls-seg button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:var(--shadow)}
+.ls-flt{display:flex;gap:6px;flex-wrap:wrap}
+.ls-flt button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px 5px 10px;min-height:38px;font-size:13.5px;display:inline-flex;align-items:center;gap:6px;color:var(--ink3)}
+.ls-flt button .dot{opacity:.35}
+.ls-flt button[aria-pressed="true"]{border-color:var(--bd);background:var(--bg);color:var(--fg)}
+.ls-flt button[aria-pressed="true"] .dot{opacity:1}
+.ls-flt .n{font-size:12px;opacity:.8}
+.lgrp{margin-bottom:12px}
+.lgrp>summary{list-style:none;display:flex;align-items:center;gap:8px;padding:8px 6px;min-height:44px;cursor:pointer;font-weight:600;border-radius:10px;user-select:none}
+.lgrp>summary::-webkit-details-marker{display:none}
+.lgrp>summary:hover{background:#ECEAE3}
+.lgrp>summary .chev{transition:transform .15s;color:var(--ink3)}
+.lgrp:not([open])>summary .chev{transform:rotate(90deg)}
+.lgrp>summary .cnt{background:#E7E5DE;color:var(--ink2);border-radius:999px;padding:1px 9px;font-size:13px;font-weight:500}
+.lgrp.late>summary{color:var(--bad-fg)}
+.lgrp.late>summary .cnt{background:var(--bad-bg);color:var(--bad-fg)}
+.lrows{background:#fff;border:1px solid var(--line2);border-radius:var(--radius);box-shadow:var(--shadow)}
+.lrow{display:flex;align-items:center;gap:6px 10px;padding:6px 12px 6px 8px;min-height:56px;border-bottom:1px solid var(--line2);cursor:pointer;position:relative}
+.lrow:last-child{border-bottom:0}
+.lrow:hover{background:#FAFAF7}
+.lrow:first-child{border-radius:var(--radius) var(--radius) 0 0}
+.lrow:last-child{border-radius:0 0 var(--radius) var(--radius)}
+.lrow-main{flex:1;min-width:0}
+.lrow-t{font-weight:500;display:flex;align-items:center;gap:6px;word-break:break-word}
+.lrow-t .urg{color:var(--bad-bd);display:flex;flex:none}
+.lrow.isdone .lrow-t{color:var(--ink3);text-decoration:line-through;text-decoration-color:rgba(0,0,0,.25)}
+.lrow-m{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:13px;color:var(--ink2);margin-top:2px}
+.lrow-m>span{display:inline-flex;align-items:center;gap:4px}
+.lrow-m .late{color:var(--bad-fg);font-weight:500}
+.lrow-tags{display:flex;gap:6px;align-items:center;flex:none}
+.stbtn{width:44px;height:44px;border:0;background:transparent;display:grid;place-items:center;border-radius:10px;flex:none;padding:0}
+.stbtn:hover{background:#F0EEE8}
+.stbtn .ring{width:24px;height:24px;border-radius:50%;border:2px solid var(--bd);background:#fff;display:grid;place-items:center;color:#fff}
+.stbtn .ring.fill{background:var(--bd)}
+.stbtn .ring .ico{width:15px;height:15px;stroke-width:2.6}
+.stbtn .ring.bad{background:var(--bad-bg)}
+.ls-empty{padding:28px;text-align:center;color:var(--ink3)}
+.atm-seg button,.atm-it,.atm-btn,.ls-seg button,.ls-flt button,.lgrp>summary,.lrow,.stbtn{-webkit-tap-highlight-color:transparent}
+
+/* ---------- tab bar ---------- */
+.tabbar{display:none}
+/* כותרת – צמצום הדרגתי ברוחבי ביניים */
+@media (max-width: 1439px) and (min-width: 760px){
+  .atm-btn .lbl-t{display:none}
+  .search input{width:200px}
+}
+@media (max-width: 1359px) and (min-width: 760px){
+  .search input{width:180px}
+}
+@media (max-width: 1279px) and (min-width: 760px){
+  .seg button .lbl-v{display:none}
+}
+@media (max-width: 1099px) and (min-width: 760px){
+  .btn.desk .lbl-d{display:none}
+  .btn.desk{padding:0;width:42px}
+}
+@media (max-width: 899px) and (min-width: 760px){
+  .brand .brand-t{display:none}
+  .search input{width:150px}
+}
+.login{max-width:420px;margin:12vh auto;padding:28px}
+.login h1{margin:0 0 6px;font-size:22px}
+
+/* ---------- mobile ---------- */
+@media (max-width: 759px){
+  :root{--tabbar-h:62px;--ticker-h:38px}
+  body{font-size:15px}
+  .hdr-in{flex-wrap:wrap;padding:8px 12px;gap:8px}
+  .hdr .seg,.hdr .desk{display:none}
+  .brand{font-size:17px}
+  .srow{padding:0 12px 8px}
+  .sres{right:12px;left:12px}
+  .banner{padding:6px 12px;font-size:12.5px}
+  .main{padding:12px 12px 84px}
+  .h1{font-size:19px}
+  .atm-btn{padding:9px 10px}
+  .lrow{flex-wrap:wrap;padding:8px 10px 8px 6px}
+  .lrow-tags{width:100%;padding-inline-start:54px;margin-top:-4px}
+  .lrow-tags:empty{display:none}
+  .ls-top .h1{flex-basis:100%}
+  .tabbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;inset-inline:0;bottom:0;height:calc(var(--tabbar-h) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:#fff;border-top:1px solid var(--line);z-index:36}
+  .tabbar button{border:0;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:12px;color:var(--ink3);min-height:44px}
+  .tabbar button[aria-pressed="true"]{color:var(--accent);font-weight:600}
+  .tabbar .ico{width:22px;height:22px}
+  .wk-wrap{grid-template-columns:minmax(0,1fr)}
+  .side{display:none}
+  .wk{min-width:600px}
+  .ov{padding:0;align-items:flex-end}
+  .modal{width:100%;max-height:100%;height:100%;border-radius:0}
+  .modal.sm,.modal.sheet{height:auto;max-height:92vh;border-radius:16px 16px 0 0}
+  .drawer{top:auto;width:100%;max-height:88vh;border-radius:16px 16px 0 0;animation:up .18s ease}
+  @keyframes up{from{transform:translateY(30px);opacity:.5}to{transform:none;opacity:1}}
+  .row3{grid-template-columns:1fr 1fr}
+  .row3 .d{grid-column:1/-1}
+  .stsel{grid-template-columns:1fr 1fr}
+  .mo-c{min-height:64px;padding:3px}
+  .mo .pill{font-size:0;padding:0;height:6px;min-height:6px;border-radius:3px;border:0;background:var(--bd)}
+  .tk-lbl{padding:0 10px;font-size:12.5px}
+  .toast{bottom:calc(var(--ticker-h) + var(--tabbar-h) + 84px)}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<noscript>האפליקציה דורשת JavaScript.</noscript>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js" crossorigin></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone@7.25.6/babel.min.js" crossorigin></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js" crossorigin></script>
+
+<script type="text/babel" data-presets="react">
+/* ================= הגדרות ================= */
+const SUPABASE_URL = 'https://yajugfebxmehsiegoutp.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_ciuOALr09HjUe1MnIQn3OA_XV6bQiPc';
+
+const { useState, useEffect, useMemo, useRef, useCallback } = React;
+const CONFIGURED = !!(SUPABASE_URL && SUPABASE_ANON_KEY);
+const LS_KEY = 'nadav-tasks-v1';
+const DAY_START = 7 * 60, DAY_END = 20 * 60; // 07:00–20:00
+const PX_PER_MIN = 1; // 60px לשעה
+
+const STATUS = {
+  todo:     { label: 'יש לטפל',     bg: '#FDEBD8', bd: '#E07B1F', fg: '#8A3D06', emoji: '🟠' },
+  bad:      { label: 'לא תקין',     bg: '#FBE1E0', bd: '#D33A2C', fg: '#8F1D14', emoji: '🔴' },
+  done:     { label: 'ממתין לתגובה', bg: '#E0F3E7', bd: '#1E9A52', fg: '#145A32', emoji: '🟢' },
+  approved: { label: 'בוצע ואושר', bg: '#DDF1FB', bd: '#1D9BD7', fg: '#0B5A80', emoji: '🔵' },
+};
+const STATUS_ORDER = ['todo', 'bad', 'done', 'approved'];
+const CATS = { iec: 'חח"י ורגולציה', clients: 'לקוחות ושטח', internal: 'פנימי' };
+const DAY_NAMES = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
+const DAY_SHORT = ["א'", "ב'", "ג'", "ד'", "ה'", "ו'", "ש'"];
+const MONTHS = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+const isOpen = (t) => t.status === 'todo' || t.status === 'bad';
+const isDone = (t) => t.status === 'done' || t.status === 'approved';
+const stVars = (s) => { const m = STATUS[s] || STATUS.todo; return { '--bg': m.bg, '--bd': m.bd, '--fg': m.fg }; };
+
+/* ================= תאריכים ================= */
+const pad = (n) => String(n).padStart(2, '0');
+const fmtD = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const parseD = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const addDays = (s, n) => { const d = parseD(s); d.setDate(d.getDate() + n); return fmtD(d); };
+const todayStr = () => fmtD(new Date());
+const weekStartOf = (s) => { const d = parseD(s); d.setDate(d.getDate() - d.getDay()); return fmtD(d); };
+const toMin = (t) => { if (!t) return null; const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+const fromMin = (m) => `${pad(Math.floor(m / 60))}:${pad(m % 60)}`;
+const dm = (s) => { const d = parseD(s); return `${d.getDate()}.${d.getMonth() + 1}`; };
+const longDate = (s) => { try { return new Intl.DateTimeFormat('he-IL', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(parseD(s)); } catch (e) { return s; } };
+const dayLabel = (s) => {
+  if (!s) return 'ללא תאריך';
+  const t = todayStr();
+  if (s === t) return 'היום';
+  if (s === addDays(t, 1)) return 'מחר';
+  if (s === addDays(t, -1)) return 'אתמול';
+  return `יום ${DAY_NAMES[parseD(s).getDay()]} ${dm(s)}`;
+};
+const HEB_DAY = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'];
+// "ג׳ 13/10 · 14:00"
+const shortWhen = (t) => {
+  if (!t.date) return 'ללא תאריך';
+  const d = parseD(t.date);
+  return `${HEB_DAY[d.getDay()]}׳ ${d.getDate()}/${d.getMonth() + 1}` + (t.start_time ? ' · ' + t.start_time : '');
+};
+const isLate = (t) => !!t.date && isOpen(t) && t.date < todayStr();
+const lsGet = (k, def) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : def; } catch (e) { return def; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* אחסון חסום */ } };
+const timeRange = (t) => t.start_time ? (t.end_time ? `${t.start_time}-${t.end_time}` : t.start_time) : '';
+const byTime = (a, b) => ((a.date || '9999') + (a.start_time || '00:00')).localeCompare((b.date || '9999') + (b.start_time || '00:00')) || (b.urgent - a.urgent);
+const uuid = () => (crypto && crypto.randomUUID) ? crypto.randomUUID()
+  : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => { const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); });
+
+/* ================= שכבת נתונים ================= */
+const FIELDS = ['id','user_id','title','notes','client','order_ref','category','status','date','start_time','end_time','deadline','urgent','source','source_ref'];
+const blankTask = () => ({ title: '', notes: '', client: '', order_ref: '', category: 'iec', status: 'todo', date: null, start_time: null, end_time: null, deadline: false, urgent: false, source: 'manual', source_ref: null });
+function normRow(r) {
+  return { ...blankTask(), ...r,
+    start_time: r.start_time ? String(r.start_time).slice(0, 5) : null,
+    end_time: r.end_time ? String(r.end_time).slice(0, 5) : null,
+    date: r.date || null };
+}
+function cleanForDb(obj) {
+  const out = {};
+  for (const k of FIELDS) if (k in obj) {
+    let v = obj[k];
+    if ((k === 'date' || k === 'start_time' || k === 'end_time' || k === 'notes' || k === 'client' || k === 'order_ref') && v === '') v = null;
+    out[k] = v;
+  }
+  return out;
+}
+
+function seedTasks() {
+  const t = todayStr();
+  const mk = (o) => normRow({ ...blankTask(), id: uuid(), created_at: new Date().toISOString(), updated_at: new Date().toISOString(), ...o });
+  return [
+    mk({ title: 'צילום ארון ייצור – ניר בצל', client: 'ניר בצל', order_ref: '301777623', category: 'clients', status: 'todo', date: t, start_time: '09:00', end_time: '10:00', notes: 'לצלם מונה, ממיר ושלט מפסק ראשי. לשלוח לרינה.' }),
+    mk({ title: 'ערעור – טלאור לוי', client: 'טלאור לוי', order_ref: 'SO26000335', category: 'iec', status: 'todo', date: t, start_time: '11:00', end_time: '12:30', urgent: true, deadline: true, notes: 'ערעור על תשובת מחלק – הפחתת הספק. להגיש עד סוף היום.' }),
+    mk({ title: 'החלפת לקוחות – בלולו', client: 'בלולו', category: 'iec', status: 'bad', date: t, start_time: '13:00', end_time: '13:30', notes: 'חח"י החזירו – חסר ייפוי כוח חתום.' }),
+    mk({ title: "שובר ג'אנסטיל שולם", client: "ג'אנסטיל", category: 'internal', status: 'approved', date: t, start_time: '08:00', end_time: '08:30' }),
+    mk({ title: 'עדכון סטטוס מערכות מול רינה', category: 'internal', status: 'done', date: t, start_time: '15:00', end_time: '15:30' }),
+    mk({ title: 'בדיקת תשובת מחלק – משק כהן', client: 'משק כהן', order_ref: '301802114', category: 'iec', status: 'done', date: addDays(t, -1), start_time: '10:00', end_time: '11:00' }),
+    mk({ title: 'סקר אתר – גג רפת, מושב תלמים', client: 'מושב תלמים', category: 'clients', status: 'todo', date: addDays(t, 1), start_time: '08:30', end_time: '11:00', notes: 'לקחת מטר לייזר ורחפן. שרטוט נישה למונה.' }),
+    mk({ title: 'הגשת היתר לוועדה המקומית – שקמים', client: 'משפחת אזולאי', category: 'clients', status: 'todo', date: addDays(t, 2), deadline: true }),
+    mk({ title: 'תיאום חשמלאי הרחבה – אבוטבול', client: 'אבוטבול', order_ref: '301765410', category: 'clients', status: 'done', date: addDays(t, -2), start_time: '14:00', end_time: '15:00' }),
+    mk({ title: 'בדיקת תשלום לפני ביצוע – פרויקט גבעתי', client: 'גבעתי', category: 'internal', status: 'todo', date: addDays(t, 1), start_time: '12:00', end_time: '12:30' }),
+    mk({ title: 'פגישת הזמנות שבועית עם דרור', category: 'internal', status: 'todo', date: addDays(t, 2), start_time: '15:00', end_time: '16:00' }),
+    mk({ title: 'עדכון טבלת ביטולים חח"י', category: 'iec', status: 'todo', date: null }),
+    mk({ title: 'שרטוט נישה – משפחת דהן', client: 'משפחת דהן', category: 'clients', status: 'bad', date: null, notes: 'המידות מהשטח לא תואמות לתוכנית.' }),
+  ];
+}
+
+function createLocalStore() {
+  let tasks = null;
+  try { const raw = localStorage.getItem(LS_KEY); if (raw) tasks = JSON.parse(raw).map(normRow); } catch (e) { tasks = null; }
+  if (!Array.isArray(tasks)) tasks = seedTasks();
+  const subs = new Set();
+  const persist = () => { try { localStorage.setItem(LS_KEY, JSON.stringify(tasks)); } catch (e) { /* אחסון חסום – ממשיכים בזיכרון */ } };
+  const emit = () => { persist(); subs.forEach((f) => f(tasks)); };
+  persist();
+  return {
+    mode: 'local',
+    async init() {},
+    destroy() {},
+    subscribe(f) { subs.add(f); f(tasks); return () => subs.delete(f); },
+    async create(t) {
+      const now = new Date().toISOString();
+      const row = normRow({ ...blankTask(), ...t, id: uuid(), created_at: now, updated_at: now });
+      tasks = [...tasks, row]; emit(); return row;
+    },
+    async update(id, patch) {
+      tasks = tasks.map((x) => x.id === id ? normRow({ ...x, ...patch, updated_at: new Date().toISOString() }) : x); emit();
+    },
+    async remove(id) { tasks = tasks.filter((x) => x.id !== id); emit(); },
+  };
+}
+
+function createSupabaseStore(sb, user) {
+  let tasks = [];
+  let channel = null;
+  const subs = new Set();
+  const emit = () => subs.forEach((f) => f(tasks));
+  const put = (row) => {
+    row = normRow(row);
+    const i = tasks.findIndex((t) => t.id === row.id);
+    tasks = i < 0 ? [...tasks, row] : tasks.map((t) => t.id === row.id ? row : t);
+    emit();
+  };
+  async function refresh() {
+    const { data, error } = await sb.from('personal_tasks').select('*');
+    if (error) throw error;
+    tasks = (data || []).map(normRow); emit();
+  }
+  const onVis = () => { if (document.visibilityState === 'visible') refresh().catch(() => {}); };
+  return {
+    mode: 'supabase',
+    async init() {
+      await refresh();
+      channel = sb.channel('personal-tasks-' + user.id)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'personal_tasks', filter: 'user_id=eq.' + user.id }, (p) => {
+          if (p.eventType === 'DELETE') { tasks = tasks.filter((t) => t.id !== (p.old && p.old.id)); emit(); }
+          else if (p.new) put(p.new);
+        })
+        .subscribe();
+      document.addEventListener('visibilitychange', onVis);
+    },
+    destroy() { if (channel) sb.removeChannel(channel); document.removeEventListener('visibilitychange', onVis); },
+    subscribe(f) { subs.add(f); f(tasks); return () => subs.delete(f); },
+    async create(t) {
+      const row = { ...blankTask(), ...t, id: uuid(), user_id: user.id };
+      put({ ...row, created_at: new Date().toISOString() });
+      const { data, error } = await sb.from('personal_tasks').insert(cleanForDb(row)).select().single();
+      if (error) { tasks = tasks.filter((x) => x.id !== row.id); emit(); throw error; }
+      put(data); return data;
+    },
+    async update(id, patch) {
+      const prev = tasks.find((t) => t.id === id);
+      if (prev) put({ ...prev, ...patch });
+      const { data, error } = await sb.from('personal_tasks').update(cleanForDb(patch)).eq('id', id).select().single();
+      if (error) { if (prev) put(prev); throw error; }
+      put(data);
+    },
+    async remove(id) {
+      const prev = tasks.find((t) => t.id === id);
+      tasks = tasks.filter((t) => t.id !== id); emit();
+      const { error } = await sb.from('personal_tasks').delete().eq('id', id);
+      if (error) { if (prev) { tasks = [...tasks, prev]; emit(); } throw error; }
+    },
+  };
+}
+
+/* ================= טקסט לשיתוף ================= */
+function shareLine(t, withDate) {
+  const s = STATUS[t.status] || STATUS.todo;
+  let l = `${s.emoji} *${t.title}*`;
+  const when = [withDate && t.date ? dayLabel(t.date) : '', timeRange(t)].filter(Boolean).join(' ');
+  if (when) l += ` (${when})`;
+  const meta = [t.client && `לקוח: ${t.client}`, t.order_ref && `הזמנה: ${t.order_ref}`, t.urgent && 'דחוף', t.deadline && 'יעד'].filter(Boolean).join(' · ');
+  if (meta) l += `\n      ${meta}`;
+  return l;
+}
+function buildShare(scope, task, tasks, includeDone) {
+  const t0 = todayStr();
+  const keep = (x) => includeDone || !isDone(x);
+  if (scope === 'task' && task) {
+    const s = STATUS[task.status];
+    let out = `*משימה – ${task.title}*\n${s.emoji} ${s.label}`;
+    if (task.date) out += `\nמועד: ${dayLabel(task.date)}${task.start_time ? ' ' + timeRange(task) : ''}`;
+    if (task.client) out += `\nלקוח: ${task.client}`;
+    if (task.order_ref) out += `\nהזמנה: ${task.order_ref}`;
+    out += `\nקטגוריה: ${CATS[task.category] || ''}`;
+    if (task.urgent) out += '\nדחוף';
+    if (task.notes) out += `\n\n${task.notes}`;
+    return { subject: `משימה: ${task.title}`, text: out };
+  }
+  if (scope === 'week') {
+    const ws = weekStartOf(t0);
+    let out = `*משימות השבוע ${dm(ws)}-${dm(addDays(ws, 6))}*`;
+    let any = 0, doneN = 0, total = 0;
+    for (let i = 0; i < 7; i++) {
+      const d = addDays(ws, i);
+      const all = tasks.filter((x) => x.date === d);
+      total += all.length; doneN += all.filter(isDone).length;
+      const list = all.filter(keep).sort(byTime);
+      if (!list.length) continue;
+      any++;
+      out += `\n\n_יום ${DAY_NAMES[i]} ${dm(d)}_\n` + list.map((x) => shareLine(x, false)).join('\n');
+    }
+    if (!any) out += '\n\nאין משימות להצגה.';
+    out += `\n\nסה"כ ${total} · הושלמו ${doneN}`;
+    return { subject: `משימות השבוע ${dm(ws)}-${dm(addDays(ws, 6))}`, text: out };
+  }
+  const all = tasks.filter((x) => x.date === t0);
+  const list = all.filter(keep).sort(byTime);
+  let out = `*משימות להיום – ${longDate(t0)}*\n\n` + (list.length ? list.map((x) => shareLine(x, false)).join('\n') : 'אין משימות להצגה.');
+  out += `\n\nהושלמו ${all.filter(isDone).length} מתוך ${all.length}`;
+  return { subject: `משימות להיום ${dm(t0)}`, text: out };
+}
+const waUrl = (text) => 'https://wa.me/?text=' + encodeURIComponent(text);
+const mailUrl = (subject, text) => 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(text.replace(/\*/g, '').replace(/(^|\n)_([^\n]*)_(?=\n|$)/g, '$1$2'));
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); return true; }
+  catch (e) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      const ok = document.execCommand('copy'); ta.remove(); return ok;
+    } catch (e2) { return false; }
+  }
+}
+
+/* ================= אייקונים ================= */
+const PATHS = {
+  plus: 'M12 5v14M5 12h14', x: 'M6 6l12 12M18 6L6 18',
+  chevL: 'M15 6l-6 6 6 6', chevR: 'M9 6l6 6-6 6', chevD: 'M6 9l6 6 6-6',
+  search: 'M18 11a7 7 0 1 1-14 0 7 7 0 0 1 14 0zM20 20l-3.5-3.5',
+  board: 'M4 5h4v14H4zM10 5h4v9h-4zM16 5h4v6h-4z',
+  week: 'M3 5h18v15H3zM3 9h18M8 3v4M16 3v4M9 9v11M15 9v11',
+  month: 'M3 5h18v15H3zM3 10h18M8 3v4M16 3v4M7 14h2M11 14h2M15 14h2M7 17h2M11 17h2',
+  list: 'M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01',
+  mail: 'M3 6h18v12H3zM3 7l9 6 9-6',
+  share: 'M4 13v7h16v-7M12 3v12M7 8l5-5 5 5',
+  edit: 'M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4',
+  trash: 'M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3',
+  clock: 'M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0zM12 7v5l3 2',
+  user: 'M16 8a4 4 0 1 1-8 0 4 4 0 0 1 8 0zM4 21c1-4 4-6 8-6s7 2 8 6',
+  hash: 'M5 9h14M5 15h14M10 4L8 20M16 4l-2 16',
+  flag: 'M5 21V4M5 4h11l-2 4 2 4H5',
+  alert: 'M12 3l10 18H2zM12 10v5M12 18h.01',
+  next: 'M19 12H5M11 6l-6 6 6 6',
+  chat: 'M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.9A8 8 0 1 1 21 12z',
+  copy: 'M9 9h11v11H9zM5 15H4V4h11v1',
+  send: 'M21 3L10 14M21 3l-7 18-4-7-7-4z',
+  check: 'M5 12l5 5 9-10', logout: 'M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10',
+  tag: 'M3 12V4h8l10 10-8 8zM7.5 8h.01', inbox: 'M3 13h5l2 3h4l2-3h5M5 5h14l2 8v6H3v-6z',
+  cloud: 'M7 18a5 5 0 1 1 1-9.9A6 6 0 0 1 19 10a4 4 0 0 1 0 8z',
+  rows: 'M4 6.5l1.5 1.5L8 5.5M4 12.5L5.5 14 8 11.5M4 18.5L5.5 20 8 17.5M11 7h9M11 13h9M11 19h9',
+};
+function Icon({ name, sm, style }) {
+  return <svg className={'ico' + (sm ? ' sm' : '')} viewBox="0 0 24 24" aria-hidden="true" style={style}><path d={PATHS[name]} /></svg>;
+}
+
+/* ================= רכיבים קטנים ================= */
+const dragState = { current: null }; // {id, offsetMin, dur}
+
+function useIsMobile() {
+  const q = '(max-width: 759px)';
+  const [m, setM] = useState(() => window.matchMedia(q).matches);
+  useEffect(() => { const mq = window.matchMedia(q); const h = () => setM(mq.matches); mq.addEventListener('change', h); return () => mq.removeEventListener('change', h); }, []);
+  return m;
+}
+
+function StatusChip({ status, onChange, compact }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!open) return;
+    const h = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    const k = (e) => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('pointerdown', h); document.addEventListener('keydown', k);
+    return () => { document.removeEventListener('pointerdown', h); document.removeEventListener('keydown', k); };
+  }, [open]);
+  const m = STATUS[status];
+  return (
+    <span className="chipwrap" ref={ref} onClick={(e) => e.stopPropagation()}>
+      {compact ? (
+        <button type="button" className="stbtn" style={stVars(status)} aria-haspopup="menu" aria-expanded={open} aria-label={`סטטוס: ${m.label} – שינוי`} title={m.label} onClick={() => setOpen((o) => !o)} onKeyDown={(e) => e.stopPropagation()}>
+          <span className={'ring' + (isDone({ status }) ? ' fill' : '') + (status === 'bad' ? ' bad' : '')}>{isDone({ status }) && <Icon name="check" />}</span>
+        </button>
+      ) : (
+        <button type="button" className="chip" style={stVars(status)} aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+          <span className="dot" style={{ background: m.bd }} />{m.label}<Icon name="chevD" sm />
+        </button>
+      )}
+      {open && (
+        <div className="menu" role="menu">
+          {STATUS_ORDER.map((s) => (
+            <button key={s} type="button" role="menuitemradio" aria-checked={s === status} onClick={() => { setOpen(false); if (s !== status) onChange(s); }}>
+              <span className="dot" style={{ background: STATUS[s].bd }} />{STATUS[s].label}
+              {s === status && <span style={{ marginInlineStart: 'auto' }}><Icon name="check" sm /></span>}
+            </button>
+          ))}
+        </div>
+      )}
+    </span>
+  );
+}
+
+function StatusSelector({ value, onChange }) {
+  return (
+    <div className="stsel" role="group" aria-label="סטטוס">
+      {STATUS_ORDER.map((s) => (
+        <button key={s} type="button" style={stVars(s)} aria-pressed={value === s} onClick={() => onChange(s)}>
+          <span className="dot" style={{ background: STATUS[s].bd }} />{STATUS[s].label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function CatTag({ c }) { return <span className={'tag ' + c}>{CATS[c] || c}</span>; }
+
+function TaskCard({ t, onOpen, onStatus, draggable, children }) {
+  const [drag, setDrag] = useState(false);
+  return (
+    <div className={'card' + (drag ? ' dragging' : '')} style={stVars(t.status)} draggable={draggable ? 'true' : undefined}
+      onDragStart={draggable ? (e) => { dragState.current = { id: t.id, offsetMin: 0, dur: 60 }; e.dataTransfer.setData('text/plain', t.id); e.dataTransfer.effectAllowed = 'move'; setDrag(true); } : undefined}
+      onDragEnd={draggable ? () => { setDrag(false); dragState.current = null; } : undefined}
+      onClick={() => onOpen(t)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') onOpen(t); }}
+      data-id={t.id}>
+      <p className="card-t">{t.title}</p>
+      <div className="card-meta">
+        {t.start_time && <span><Icon name="clock" sm />{timeRange(t)}</span>}
+        {t.client && <span><Icon name="user" sm />{t.client}</span>}
+        {t.order_ref && <span><Icon name="hash" sm />{t.order_ref}</span>}
+      </div>
+      <div className="card-foot">
+        <StatusChip status={t.status} onChange={(s) => onStatus(t, s)} />
+        <CatTag c={t.category} />
+        {t.urgent && <span className="tag urgent"><Icon name="alert" sm />דחוף</span>}
+        {t.deadline && <span className="tag deadline"><Icon name="flag" sm />יעד</span>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function Progress({ list }) {
+  const total = list.length;
+  const doneN = list.filter(isDone).length;
+  return (
+    <div className="prog">
+      <div className="prog-bar" role="img" aria-label={`${doneN} מתוך ${total} הושלמו`}>
+        {total === 0 ? null : STATUS_ORDER.map((s) => {
+          const n = list.filter((t) => t.status === s).length;
+          return n ? <span key={s} style={{ width: (n / total * 100) + '%', background: STATUS[s].bd }} title={`${STATUS[s].label}: ${n}`} /> : null;
+        })}
+      </div>
+      <div className="prog-txt">{doneN} מתוך {total} הושלמו</div>
+    </div>
+  );
+}
+
+function Modal({ title, onClose, children, footer, size, top }) {
+  useEffect(() => {
+    const k = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', k); return () => document.removeEventListener('keydown', k);
+  }, [onClose]);
+  return (
+    <div className={'ov' + (top ? ' top' : '')} onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className={'modal ' + (size || '')} role="dialog" aria-modal="true" aria-label={title}>
+        <div className="m-h"><h2>{title}</h2><button className="btn icon ghost" onClick={onClose} aria-label="סגירה"><Icon name="x" /></button></div>
+        <div className="m-b">{children}</div>
+        {footer && <div className="m-f">{footer}</div>}
+      </div>
+    </div>
+  );
+}
+
+function ConfirmDialog({ text, yesLabel, onYes, onNo }) {
+  return (
+    <Modal title="אישור" onClose={onNo} size="sm" top
+      footer={<><button className="btn danger" onClick={onYes} autoFocus><Icon name="trash" sm />{yesLabel || 'מחיקה'}</button><button className="btn" onClick={onNo}>ביטול</button></>}>
+      <p style={{ margin: 0 }}>{text}</p>
+    </Modal>
+  );
+}
+
+/* ================= לוח היום ================= */
+function TodayBoard({ tasks, act }) {
+  const t0 = todayStr();
+  const list = tasks.filter((t) => t.date === t0).sort(byTime);
+  const undated = tasks.filter((t) => !t.date && isOpen(t)).sort(byTime);
+  const [over, setOver] = useState(null);
+  const [stripOpen, setStripOpen] = useState(true);
+  return (
+    <section aria-label="לוח היום">
+      <h1 className="h1">{longDate(t0)}</h1>
+      <Progress list={list} />
+      <div className="board">
+        {STATUS_ORDER.map((s) => {
+          const items = list.filter((t) => t.status === s);
+          return (
+            <div key={s} className={'col' + (over === s ? ' over' : '')} style={{ background: STATUS[s].bg, color: STATUS[s].bd }}
+              data-col={s}
+              onDragOver={(e) => { if (dragState.current) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; if (over !== s) setOver(s); } }}
+              onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setOver(null); }}
+              onDrop={(e) => { e.preventDefault(); setOver(null); const d = dragState.current; dragState.current = null; if (d) { const t = tasks.find((x) => x.id === d.id); if (t && t.status !== s) act.update(t.id, { status: s }, `הועבר ל"${STATUS[s].label}"`); } }}>
+              <div className="col-h" style={{ color: STATUS[s].fg }}><span className="dot" style={{ background: STATUS[s].bd }} />{STATUS[s].label}<span className="cnt">{items.length}</span></div>
+              <div style={{ color: 'var(--ink)' }}>
+                {items.map((t) => <TaskCard key={t.id} t={t} draggable onOpen={act.open} onStatus={(x, st) => act.update(x.id, { status: st })} />)}
+                {!items.length && <div className="empty">גרור לכאן משימה</div>}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="strip">
+        <button className="strip-h" onClick={() => setStripOpen((o) => !o)} aria-expanded={stripOpen}>
+          <Icon name={stripOpen ? 'chevD' : 'chevL'} sm />ללא תאריך <span className="sub">({undated.length})</span>
+        </button>
+        {stripOpen && (undated.length
+          ? <div className="strip-list">{undated.map((t) => <TaskCard key={t.id} t={t} draggable onOpen={act.open} onStatus={(x, st) => act.update(x.id, { status: st })} />)}</div>
+          : <div className="sub">אין משימות פתוחות ללא תאריך.</div>)}
+      </div>
+    </section>
+  );
+}
+
+/* ================= אג'נדה לנייד ================= */
+function Agenda({ tasks, act, day, setDay }) {
+  const ws = weekStartOf(day);
+  const t0 = todayStr();
+  const list = tasks.filter((t) => t.date === day).sort(byTime);
+  const undated = tasks.filter((t) => !t.date && isOpen(t)).sort(byTime);
+  const [showUndated, setShowUndated] = useState(false);
+  return (
+    <section aria-label="אג'נדה">
+      <div className="ag-strip">
+        <button className="nav" onClick={() => setDay(addDays(day, -7))} aria-label="שבוע קודם"><Icon name="chevR" /></button>
+        {Array.from({ length: 7 }, (_, i) => {
+          const d = addDays(ws, i);
+          const dl = tasks.filter((t) => t.date === d);
+          return (
+            <button key={d} className={'ag-day' + (d === day ? ' sel' : '') + (d === t0 ? ' today' : '')} onClick={() => setDay(d)} aria-pressed={d === day} aria-label={dayLabel(d)}>
+              <span className="w">{DAY_SHORT[i]}</span><span className="n">{parseD(d).getDate()}</span>
+              <span className="ds">{dl.slice(0, 4).map((t) => <i key={t.id} style={{ background: STATUS[t.status].bd }} />)}</span>
+            </button>
+          );
+        })}
+        <button className="nav" onClick={() => setDay(addDays(day, 7))} aria-label="שבוע הבא"><Icon name="chevL" /></button>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <h1 className="h1" style={{ flex: 1 }}>{day === t0 ? 'היום · ' : ''}{longDate(day)}</h1>
+        {day !== t0 && <button className="mini-btn" onClick={() => setDay(t0)}>היום</button>}
+      </div>
+      <Progress list={list} />
+      <div className="ag-list">
+        {list.map((t) => (
+          <TaskCard key={t.id} t={t} onOpen={act.open} onStatus={(x, st) => act.update(x.id, { status: st })}>
+            <div className="card-foot" onClick={(e) => e.stopPropagation()}>
+              <button className="mini-btn" onClick={() => act.postpone(t)}><Icon name="next" sm />מחר</button>
+              <button className="mini-btn" onClick={() => act.share(t)}><Icon name="send" sm />שלח</button>
+            </div>
+          </TaskCard>
+        ))}
+        {!list.length && <div className="panel" style={{ padding: 18, textAlign: 'center', color: 'var(--ink3)' }}>אין משימות ביום הזה.</div>}
+      </div>
+      <div className="strip">
+        <button className="strip-h" onClick={() => setShowUndated((o) => !o)} aria-expanded={showUndated}>
+          <Icon name={showUndated ? 'chevD' : 'chevL'} sm />ללא תאריך <span className="sub">({undated.length})</span>
+        </button>
+        {showUndated && <div className="ag-list">{undated.map((t) => (
+          <TaskCard key={t.id} t={t} onOpen={act.open} onStatus={(x, st) => act.update(x.id, { status: st })}>
+            <div className="card-foot" onClick={(e) => e.stopPropagation()}>
+              <button className="mini-btn" onClick={() => act.update(t.id, { date: day }, 'שובץ ליום הנבחר')}><Icon name="week" sm />שבץ ליום זה</button>
+              <button className="mini-btn" onClick={() => act.share(t)}><Icon name="send" sm />שלח</button>
+            </div>
+          </TaskCard>))}</div>}
+      </div>
+    </section>
+  );
+}
+
+/* ================= שבוע ================= */
+function layoutDay(list) {
+  const items = list.map((t) => {
+    const s = toMin(t.start_time); let e = toMin(t.end_time);
+    if (e == null || e <= s) e = s + 60;
+    return { t, s, e };
+  }).sort((a, b) => a.s - b.s || b.e - a.e);
+  let cluster = [], clusterEnd = -1, lanes = [];
+  const flush = () => { const n = lanes.length; cluster.forEach((it) => { it.n = n; }); cluster = []; lanes = []; };
+  for (const it of items) {
+    if (it.s >= clusterEnd && cluster.length) flush();
+    let lane = lanes.findIndex((end) => end <= it.s);
+    if (lane < 0) { lane = lanes.length; lanes.push(it.e); } else lanes[lane] = it.e;
+    it.lane = lane; cluster.push(it); clusterEnd = Math.max(clusterEnd, it.e);
+  }
+  flush();
+  return items;
+}
+
+function MiniMonth({ anchor, onPick, tasks, weekStart, days }) {
+  const [m, setM] = useState(() => { const d = parseD(anchor); return { y: d.getFullYear(), mo: d.getMonth() }; });
+  useEffect(() => { const d = parseD(anchor); setM({ y: d.getFullYear(), mo: d.getMonth() }); }, [anchor]);
+  const first = fmtD(new Date(m.y, m.mo, 1));
+  const gs = weekStartOf(first);
+  const t0 = todayStr();
+  const dated = useMemo(() => new Set(tasks.filter((t) => t.date && isOpen(t)).map((t) => t.date)), [tasks]);
+  const shift = (n) => setM(({ y, mo }) => { const d = new Date(y, mo + n, 1); return { y: d.getFullYear(), mo: d.getMonth() }; });
+  return (
+    <div className="panel">
+      <div className="mini-h">
+        <button onClick={() => shift(-1)} aria-label="חודש קודם"><Icon name="chevR" sm /></button>
+        <span>{MONTHS[m.mo]} {m.y}</span>
+        <button onClick={() => shift(1)} aria-label="חודש הבא"><Icon name="chevL" sm /></button>
+      </div>
+      <div className="mini">
+        {DAY_SHORT.map((d) => <span key={d} className="dn">{d}</span>)}
+        {Array.from({ length: 42 }, (_, i) => {
+          const d = addDays(gs, i); const dd = parseD(d);
+          const inWeek = d >= weekStart && d < addDays(weekStart, days);
+          return (
+            <button key={d} className={(dd.getMonth() !== m.mo ? 'out ' : '') + (inWeek ? 'inweek ' : '') + (d === t0 ? 'today' : '')} onClick={() => onPick(d)} aria-label={longDate(d)}>
+              {dd.getDate()}{dated.has(d) && <span className="has" />}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function WeekView({ tasks, allTasks, act, anchor, setAnchor, showWeekend, setShowWeekend, focusId, isMobile, filter, setFilter }) {
+  const ws = weekStartOf(anchor);
+  const nDays = showWeekend ? 7 : 5;
+  const days = Array.from({ length: nDays }, (_, i) => addDays(ws, i));
+  const t0 = todayStr();
+  const [over, setOver] = useState(null);
+  const [draggingId, setDraggingId] = useState(null);
+  const [qa, setQa] = useState('');
+  const [now, setNow] = useState(new Date());
+  useEffect(() => { const i = setInterval(() => setNow(new Date()), 60000); return () => clearInterval(i); }, []);
+
+  const weekTasks = tasks.filter((t) => t.date && t.date >= ws && t.date < addDays(ws, 7));
+  const visible = weekTasks.filter((t) => filter[t.status]);
+  const waiting = tasks.filter((t) => !t.date && isOpen(t)).sort(byTime);
+  const cols = `56px repeat(${nDays}, minmax(0,1fr))`;
+  const gridH = (DAY_END - DAY_START) * PX_PER_MIN;
+
+  useEffect(() => {
+    if (!focusId) return;
+    const el = document.getElementById('blk-' + focusId);
+    if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' }); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
+  }, [focusId, anchor]);
+
+  const startDrag = (e, t, offsetMin, dur) => {
+    dragState.current = { id: t.id, offsetMin, dur };
+    e.dataTransfer.setData('text/plain', t.id); e.dataTransfer.effectAllowed = 'move';
+    setDraggingId(t.id);
+  };
+  const endDrag = () => { dragState.current = null; setDraggingId(null); setOver(null); };
+
+  const dropOnGrid = (e, day) => {
+    e.preventDefault(); setOver(null);
+    const d = dragState.current; dragState.current = null; setDraggingId(null);
+    if (!d) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    let start = DAY_START + Math.round((y / PX_PER_MIN - d.offsetMin) / 15) * 15;
+    start = Math.max(DAY_START, Math.min(start, DAY_END - Math.min(d.dur, DAY_END - DAY_START)));
+    const end = Math.min(start + d.dur, 24 * 60 - 1);
+    act.update(d.id, { date: day, start_time: fromMin(start), end_time: fromMin(end) }, `שובץ ל${dayLabel(day)} ${fromMin(start)}`);
+  };
+  const dropAllDay = (e, day) => {
+    e.preventDefault(); setOver(null);
+    const d = dragState.current; dragState.current = null; setDraggingId(null);
+    if (d) act.update(d.id, { date: day, start_time: null, end_time: null }, `הועבר ל${dayLabel(day)} (ללא שעה)`);
+  };
+  const clickSlot = (e, day) => {
+    if (e.target !== e.currentTarget) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const start = DAY_START + Math.floor((e.clientY - rect.top) / PX_PER_MIN / 15) * 15;
+    act.newTask({ date: day, start_time: fromMin(start), end_time: fromMin(Math.min(start + 60, DAY_END)) });
+  };
+  const quickAdd = (e) => {
+    e.preventDefault();
+    const title = qa.trim(); if (!title) return;
+    act.create({ title, date: null }, 'נוספה לממתינות לשיבוץ'); setQa('');
+  };
+
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  const title = (() => { const a = parseD(ws), b = parseD(addDays(ws, nDays - 1)); return a.getMonth() === b.getMonth() ? `${a.getDate()}-${b.getDate()} ב${MONTHS[a.getMonth()]} ${a.getFullYear()}` : `${a.getDate()} ב${MONTHS[a.getMonth()]} – ${b.getDate()} ב${MONTHS[b.getMonth()]} ${b.getFullYear()}`; })();
+
+  return (
+    <section className="wk-wrap" aria-label="תצוגת שבוע">
+      {!isMobile && (
+        <aside className="side">
+          <MiniMonth anchor={anchor} onPick={setAnchor} tasks={allTasks} weekStart={ws} days={nDays} />
+          <div className="panel flt">
+            <h3>סינון לפי סטטוס</h3>
+            {STATUS_ORDER.map((s) => (
+              <label key={s}>
+                <input type="checkbox" checked={filter[s]} onChange={(e) => setFilter((f) => ({ ...f, [s]: e.target.checked }))} />
+                <span className="dot" style={{ background: STATUS[s].bd }} />{STATUS[s].label}
+                <span className="n">{weekTasks.filter((t) => t.status === s).length}</span>
+              </label>
+            ))}
+          </div>
+          <div className="panel">
+            <h3>ממתינות לשיבוץ ({waiting.length})</h3>
+            <div className="wait">
+              {waiting.map((t) => (
+                <button key={t.id} className="wait-it" style={stVars(t.status)} draggable="true" title="גרור ללוח השבוע"
+                  onDragStart={(e) => startDrag(e, t, 0, 60)} onDragEnd={endDrag} onClick={() => act.open(t)} data-wait={t.id}>
+                  {t.title}{t.client ? <span className="sub"> · {t.client}</span> : null}
+                </button>
+              ))}
+              {!waiting.length && <div className="wait-empty">אין משימות שממתינות לשיבוץ.</div>}
+            </div>
+          </div>
+          <form className="panel" onSubmit={quickAdd}>
+            <h3><label htmlFor="qa">הוספה מהירה</label></h3>
+            <div className="qadd">
+              <input id="qa" value={qa} onChange={(e) => setQa(e.target.value)} placeholder="כותרת משימה ואנטר" />
+              <button className="btn primary icon" type="submit" aria-label="הוספה"><Icon name="plus" /></button>
+            </div>
+          </form>
+        </aside>
+      )}
+      <div>
+        <div className="wk-top">
+          <h1 className="h1">{title}</h1>
+          <button className="btn icon" onClick={() => setAnchor(addDays(anchor, -7))} aria-label="שבוע קודם"><Icon name="chevR" /></button>
+          <button className="btn" onClick={() => setAnchor(t0)}>היום</button>
+          <button className="btn icon" onClick={() => setAnchor(addDays(anchor, 7))} aria-label="שבוע הבא"><Icon name="chevL" /></button>
+          <span className="spacer" />
+          <label className="tgl"><input type="checkbox" checked={showWeekend} onChange={(e) => setShowWeekend(e.target.checked)} />הצג שישי ושבת</label>
+        </div>
+        <div className="wk-scroll">
+          <div className="wk">
+            <div className="wk-row" style={{ gridTemplateColumns: cols }}>
+              <div style={{ borderBottom: '1px solid var(--line)' }} />
+              {days.map((d) => { const dd = parseD(d); return (
+                <div key={d} className={'wk-dh' + (d === t0 ? ' today' : '')}>
+                  <div className="d1">{DAY_NAMES[dd.getDay()]}</div><div className="d2">{dd.getDate()}</div>
+                </div>); })}
+            </div>
+            <div className="wk-row" style={{ gridTemplateColumns: cols }}>
+              <div className="wk-adl">יעד / ללא שעה</div>
+              {days.map((d) => (
+                <div key={d} className={'wk-ad' + (over === 'ad' + d ? ' over' : '')} data-allday={d}
+                  onDragOver={(e) => { if (dragState.current) { e.preventDefault(); if (over !== 'ad' + d) setOver('ad' + d); } }}
+                  onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setOver(null); }}
+                  onDrop={(e) => dropAllDay(e, d)}>
+                  {visible.filter((t) => t.date === d && !t.start_time).map((t) => (
+                    <button key={t.id} id={'blk-' + t.id} className="pill" style={stVars(t.status)} draggable="true"
+                      onDragStart={(e) => startDrag(e, t, 0, 60)} onDragEnd={endDrag} onClick={() => act.open(t)} title={t.title}>
+                      {t.deadline && <Icon name="flag" sm />}{t.title}
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </div>
+            <div className="wk-row" style={{ gridTemplateColumns: cols, height: gridH }}>
+              <div className="wk-gut">
+                {Array.from({ length: (DAY_END - DAY_START) / 60 + 1 }, (_, i) => (
+                  <span key={i} style={{ top: Math.max(8, Math.min(gridH - 8, i * 60 * PX_PER_MIN)) }}>{pad(7 + i)}:00</span>
+                ))}
+              </div>
+              {days.map((d) => (
+                <div key={d} className={'wk-day' + (d === t0 ? ' istoday' : '') + (over === d ? ' over' : '')} data-day={d}
+                  onClick={(e) => clickSlot(e, d)}
+                  onDragOver={(e) => { if (dragState.current) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; if (over !== d) setOver(d); } }}
+                  onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setOver(null); }}
+                  onDrop={(e) => dropOnGrid(e, d)}>
+                  {layoutDay(visible.filter((t) => t.date === d && t.start_time)).map(({ t, s, e, lane, n }) => {
+                    const top = Math.max(0, Math.min(s, DAY_END - 20) - DAY_START) * PX_PER_MIN;
+                    const h = Math.max(22, (Math.min(e, DAY_END) - Math.max(s, DAY_START)) * PX_PER_MIN - 2);
+                    const w = 100 / n;
+                    return (
+                      <button key={t.id} id={'blk-' + t.id} className={'blk' + (h < 44 ? ' short' : '') + (draggingId === t.id ? ' dragging' : '') + (focusId === t.id ? ' flash' : '')}
+                        style={{ ...stVars(t.status), top, height: h, insetInlineStart: `calc(${lane * w}% + 2px)`, width: `calc(${w}% - 4px)` }}
+                        draggable="true"
+                        onDragStart={(ev) => { const r = ev.currentTarget.getBoundingClientRect(); startDrag(ev, t, Math.round((ev.clientY - r.top) / PX_PER_MIN), e - s); }}
+                        onDragEnd={endDrag}
+                        onClick={(ev) => { ev.stopPropagation(); act.open(t); }}
+                        title={`${timeRange(t)} ${t.title}`}>
+                        <span className="bt">{t.urgent && <Icon name="alert" sm style={{ verticalAlign: '-3px', marginInlineEnd: 3 }} />}{t.title}</span>
+                        {h > 34 && <span className="bm">{timeRange(t)}{t.client ? ' · ' + t.client : ''}</span>}
+                      </button>
+                    );
+                  })}
+                  {d === t0 && nowMin >= DAY_START && nowMin <= DAY_END && <div className="now" style={{ top: (nowMin - DAY_START) * PX_PER_MIN }} aria-hidden="true" />}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        {isMobile && <p className="sub" style={{ marginTop: 10 }}>הקש על משבצת ריקה כדי להוסיף משימה. לשינוי מועד – פתח את המשימה ובחר "עריכה".</p>}
+      </div>
+    </section>
+  );
+}
+
+/* ================= חודש ================= */
+function MonthView({ tasks, act, anchor, setAnchor, goWeek }) {
+  const a = parseD(anchor);
+  const first = fmtD(new Date(a.getFullYear(), a.getMonth(), 1));
+  const gs = weekStartOf(first);
+  const t0 = todayStr();
+  const shift = (n) => setAnchor(fmtD(new Date(a.getFullYear(), a.getMonth() + n, 1)));
+  return (
+    <section aria-label="תצוגת חודש">
+      <div className="mo-top">
+        <h1 className="h1" style={{ marginInlineEnd: 10 }}>{MONTHS[a.getMonth()]} {a.getFullYear()}</h1>
+        <button className="btn icon" onClick={() => shift(-1)} aria-label="חודש קודם"><Icon name="chevR" /></button>
+        <button className="btn" onClick={() => setAnchor(t0)}>היום</button>
+        <button className="btn icon" onClick={() => shift(1)} aria-label="חודש הבא"><Icon name="chevL" /></button>
+      </div>
+      <div className="mo">
+        {DAY_NAMES.map((d) => <div key={d} className="dn">{d}</div>)}
+        {Array.from({ length: 42 }, (_, i) => {
+          const d = addDays(gs, i); const dd = parseD(d);
+          const list = tasks.filter((t) => t.date === d).sort(byTime);
+          return (
+            <div key={d} className={'mo-c' + (dd.getMonth() !== a.getMonth() ? ' out' : '') + (d === t0 ? ' today' : '')} role="button" tabIndex={0}
+              onClick={() => goWeek(d)} onKeyDown={(e) => { if (e.key === 'Enter') goWeek(d); }} aria-label={`${longDate(d)} – ${list.length} משימות`}>
+              <span className="mo-n">{dd.getDate()}</span>
+              {list.slice(0, 3).map((t) => (
+                <button key={t.id} className="pill" style={stVars(t.status)} onClick={(e) => { e.stopPropagation(); act.open(t); }} title={t.title}>
+                  {t.start_time ? t.start_time + ' ' : ''}{t.title}
+                </button>
+              ))}
+              {list.length > 3 && <span className="mo-more">+{list.length - 3} נוספות</span>}
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+/* ================= מהמייל (בקרוב) ================= */
+function MailView() {
+  return (
+    <section className="panel mail" aria-label="מהמייל">
+      <div className="big"><Icon name="inbox" /></div>
+      <h1 className="h1">משימות מהמייל – בקרוב</h1>
+      <p className="sub" style={{ fontSize: 15 }}>בגרסה הבאה מיילים שסימנת בדגל ב-Outlook יהפכו אוטומטית למשימות.</p>
+      <ol>
+        <li>מסמנים מייל בדגל ב-Outlook (בטלפון או במחשב).</li>
+        <li>המשימה נוצרת כאן בסטטוס "יש לטפל", עם קישור חזרה למייל.</li>
+        <li>כשהמשימה מסומנת "בוצע ואושר" – הדגל במייל מסומן כהושלם.</li>
+      </ol>
+      <button className="btn" disabled><Icon name="cloud" sm />חיבור Outlook – עוד לא זמין</button>
+    </section>
+  );
+}
+
+/* ================= מגירת משימה ================= */
+function TaskDrawer({ t, act, onClose }) {
+  useEffect(() => {
+    const k = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', k); return () => document.removeEventListener('keydown', k);
+  }, [onClose]);
+  const sh = buildShare('task', t, [], true);
+  return (
+    <>
+      <div className="ov" style={{ background: 'rgba(27,31,36,.22)' }} onMouseDown={onClose} />
+      <aside className="drawer" role="dialog" aria-modal="true" aria-label={t.title}>
+        <div className="dr-h" style={{ borderTop: `5px solid ${STATUS[t.status].bd}` }}>
+          <h2>{t.title}</h2>
+          <button className="btn icon ghost" onClick={onClose} aria-label="סגירה"><Icon name="x" /></button>
+        </div>
+        <div className="dr-b">
+          <StatusSelector value={t.status} onChange={(s) => act.update(t.id, { status: s })} />
+          <div style={{ marginTop: 14 }}>
+            <div className="kv"><Icon name="week" sm /><b>{t.date ? longDate(t.date) : 'ללא תאריך'}</b></div>
+            {t.start_time && <div className="kv"><Icon name="clock" sm /><b>{timeRange(t)}</b></div>}
+            {t.client && <div className="kv"><Icon name="user" sm />לקוח: <b>{t.client}</b></div>}
+            {t.order_ref && <div className="kv"><Icon name="hash" sm />הזמנה: <b>{t.order_ref}</b></div>}
+            <div className="kv"><Icon name="tag" sm /><CatTag c={t.category} />
+              {t.urgent && <span className="tag urgent"><Icon name="alert" sm />דחוף</span>}
+              {t.deadline && <span className="tag deadline"><Icon name="flag" sm />יעד</span>}
+            </div>
+          </div>
+          {t.notes && <div className="notes">{t.notes}</div>}
+        </div>
+        <div className="dr-actions">
+          <button className="btn primary" onClick={() => act.edit(t)}><Icon name="edit" sm />עריכה</button>
+          <button className="btn" onClick={() => act.postpone(t)}><Icon name="next" sm />דחה למחר</button>
+          <a className="btn" href={mailUrl(sh.subject, sh.text)}><Icon name="mail" sm />שלח במייל</a>
+          <a className="btn" href={waUrl(sh.text)} target="_blank" rel="noopener"><Icon name="chat" sm />שלח בוואטסאפ</a>
+          <button className="btn" onClick={() => act.share(t)}><Icon name="share" sm />שיתוף…</button>
+          <button className="btn danger" onClick={() => act.askDelete(t)}><Icon name="trash" sm />מחיקה</button>
+        </div>
+      </aside>
+    </>
+  );
+}
+
+/* ================= טופס עריכה ================= */
+function EditForm({ initial, act, onClose }) {
+  const isNew = !initial.id;
+  const [f, setF] = useState(() => ({ ...blankTask(), ...initial, notes: initial.notes || '', client: initial.client || '', order_ref: initial.order_ref || '' }));
+  const [err, setErr] = useState('');
+  const [saving, setSaving] = useState(false);
+  const set = (k, v) => setF((x) => ({ ...x, [k]: v }));
+  const t0 = todayStr();
+  const nextSunday = addDays(weekStartOf(t0), 7);
+  const quick = [['היום', t0], ['מחר', addDays(t0, 1)], ["יום א' הבא", nextSunday], ['+שבוע', addDays(f.date || t0, 7)], ['ללא תאריך', null]];
+  const save = async (e) => {
+    e && e.preventDefault();
+    if (!f.title.trim()) { setErr('חובה למלא כותרת'); return; }
+    let { start_time, end_time } = f;
+    start_time = start_time || null; end_time = end_time || null;
+    if (start_time && end_time && toMin(end_time) <= toMin(start_time)) { setErr('שעת הסיום חייבת להיות אחרי שעת ההתחלה'); return; }
+    if (!f.date) { start_time = null; end_time = null; }
+    const data = { ...f, title: f.title.trim(), start_time, end_time };
+    setSaving(true);
+    const ok = isNew ? await act.create(data, 'המשימה נוספה') : await act.update(f.id, data, 'המשימה נשמרה');
+    setSaving(false);
+    if (ok !== false) onClose();
+  };
+  return (
+    <Modal title={isNew ? 'משימה חדשה' : 'עריכת משימה'} onClose={onClose}
+      footer={<>
+        <button className="btn primary" onClick={save} disabled={saving}><Icon name="check" sm />שמירה</button>
+        <button className="btn" onClick={onClose}>ביטול</button>
+        <span className="spacer" />
+        {!isNew && <button className="btn danger" onClick={() => act.askDelete(f)}><Icon name="trash" sm />מחיקה</button>}
+      </>}>
+      <form onSubmit={save}>
+        <div className="fld">
+          <label htmlFor="f-title">כותרת</label>
+          <input id="f-title" className="inp title" value={f.title} onChange={(e) => { set('title', e.target.value); setErr(''); }} autoFocus placeholder="למשל: ערעור – טלאור לוי" />
+        </div>
+        <div className="fld"><span className="lbl">סטטוס</span><StatusSelector value={f.status} onChange={(s) => set('status', s)} /></div>
+        <div className="fld">
+          <span className="lbl">מועד</span>
+          <div className="chips" style={{ marginBottom: 8 }}>
+            {quick.map(([l, d]) => <button key={l} type="button" aria-pressed={f.date === d && !(l === '+שבוע')} onClick={() => set('date', d)}>{l}</button>)}
+          </div>
+          <div className="row3">
+            <div className="d"><label className="sr" htmlFor="f-date">תאריך</label><input id="f-date" type="date" className="inp" value={f.date || ''} onChange={(e) => set('date', e.target.value || null)} /></div>
+            <div><label className="sub" htmlFor="f-st">התחלה</label><input id="f-st" type="time" step="900" className="inp" value={f.start_time || ''} onChange={(e) => { const v = e.target.value || null; setF((x) => ({ ...x, start_time: v, end_time: v && !x.end_time ? fromMin(Math.min(toMin(v) + 60, 23 * 60 + 45)) : x.end_time })); }} disabled={!f.date} /></div>
+            <div><label className="sub" htmlFor="f-et">סיום</label><input id="f-et" type="time" step="900" className="inp" value={f.end_time || ''} onChange={(e) => set('end_time', e.target.value || null)} disabled={!f.date} /></div>
+          </div>
+        </div>
+        <div className="fld">
+          <span className="lbl">קטגוריה</span>
+          <div className="chips">{Object.keys(CATS).map((c) => <button key={c} type="button" aria-pressed={f.category === c} onClick={() => set('category', c)}>{CATS[c]}</button>)}</div>
+        </div>
+        <div className="row2">
+          <div className="fld"><label htmlFor="f-client">לקוח</label><input id="f-client" className="inp" value={f.client} onChange={(e) => set('client', e.target.value)} /></div>
+          <div className="fld"><label htmlFor="f-order">מספר הזמנה</label><input id="f-order" className="inp" dir="ltr" style={{ textAlign: 'right' }} value={f.order_ref} onChange={(e) => set('order_ref', e.target.value)} /></div>
+        </div>
+        <div className="fld"><label htmlFor="f-notes">הערות</label><textarea id="f-notes" className="inp" value={f.notes} onChange={(e) => set('notes', e.target.value)} /></div>
+        <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+          <button type="button" className="sw" role="switch" aria-checked={!!f.urgent} onClick={() => set('urgent', !f.urgent)}><span className="tr" />דחוף</button>
+          <button type="button" className="sw" role="switch" aria-checked={!!f.deadline} onClick={() => set('deadline', !f.deadline)}><span className="tr" />יעד (דדליין)</button>
+        </div>
+        {err && <div className="err" role="alert">{err}</div>}
+        <button type="submit" hidden />
+      </form>
+    </Modal>
+  );
+}
+
+/* ================= שיתוף ================= */
+function ShareSheet({ task, tasks, onClose, toast }) {
+  const [scope, setScope] = useState(task ? 'task' : 'today');
+  const [incDone, setIncDone] = useState(true);
+  const { subject, text } = useMemo(() => buildShare(scope, task, tasks, incDone), [scope, task, tasks, incDone]);
+  const scopes = [...(task ? [['task', 'משימה זו']] : []), ['today', 'היום'], ['week', 'השבוע']];
+  return (
+    <Modal title="שיתוף משימות" onClose={onClose} size="sheet"
+      footer={<>
+        <a className="btn primary" href={waUrl(text)} target="_blank" rel="noopener" style={{ background: '#1E9A52', borderColor: '#1E9A52' }}><Icon name="chat" sm />וואטסאפ</a>
+        <a className="btn" href={mailUrl(subject, text)}><Icon name="mail" sm />מייל</a>
+        <button className="btn" onClick={async () => { const ok = await copyText(text); toast(ok ? 'הטקסט הועתק' : 'ההעתקה נכשלה – סמן והעתק ידנית'); }}><Icon name="copy" sm />העתקה</button>
+      </>}>
+      <div className="fld">
+        <span className="lbl">מה לשתף</span>
+        <div className="chips">{scopes.map(([k, l]) => <button key={k} type="button" aria-pressed={scope === k} onClick={() => setScope(k)}>{l}</button>)}</div>
+      </div>
+      {scope !== 'task' && <label className="tgl" style={{ marginBottom: 8 }}><input type="checkbox" checked={incDone} onChange={(e) => setIncDone(e.target.checked)} />לכלול משימות שממתינות לתגובה או אושרו</label>}
+      <div className="fld"><span className="lbl">תצוגה מקדימה</span><pre className="share-pre" data-testid="share-preview">{text}</pre></div>
+    </Modal>
+  );
+}
+
+/* ================= טיקר ================= */
+function Ticker({ tasks, onPick }) {
+  const items = tasks.filter(isOpen).sort(byTime);
+  const t0 = todayStr();
+  const reduced = useMemo(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches, []);
+  const render = (copy) => items.map((t) => (
+    <button key={copy + t.id} className="tk-it" onClick={() => onPick(t)} tabIndex={copy ? -1 : 0} aria-hidden={copy ? 'true' : undefined}>
+      <span className="dot" style={{ background: STATUS[t.status].bd }} />
+      <span className="tm">{t.start_time || '--:--'}{t.date && t.date !== t0 ? ' ' + DAY_SHORT[parseD(t.date).getDay()] : ''}</span>
+      {t.title}
+    </button>
+  ));
+  return (
+    <div className="ticker" role="region" aria-label="משימות פתוחות">
+      <div className="tk-lbl"><Icon name="alert" sm />משימות פתוחות · {items.length}</div>
+      <div className="tk-vp">
+        {items.length === 0 ? <div className="tk-empty">אין משימות פתוחות. יפה.</div> : (
+          <div className="tk-track" style={{ '--tk-dur': Math.max(20, items.length * 6) + 's' }}>
+            {render('')}{!reduced && render('c')}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ================= כל המשימות – תפריט נפתח ================= */
+const ATM_FILTERS = [['open', 'פתוחות'], ['today', 'היום'], ['week', 'השבוע'], ['all', 'הכל']];
+function AllTasksMenu({ tasks, onPick, isMobile }) {
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState('');
+  const [flt, setFlt] = useState('open');
+  const [hi, setHi] = useState(0);
+  const wrapRef = useRef(null), panelRef = useRef(null), btnRef = useRef(null), inputRef = useRef(null), listRef = useRef(null);
+  const openCount = tasks.filter(isOpen).length;
+  const t0 = todayStr();
+  const ws = weekStartOf(t0), we = addDays(ws, 7);
+  const match = {
+    open: isOpen,
+    today: (t) => t.date === t0,
+    week: (t) => !!t.date && t.date >= ws && t.date < we,
+    all: () => true,
+  };
+  const qq = q.trim().toLowerCase();
+  const bySearch = (t) => !qq || [t.title, t.client, t.order_ref, t.notes].some((v) => v && String(v).toLowerCase().includes(qq));
+  const list = open ? tasks.filter((t) => match[flt](t) && bySearch(t)).sort(byTime) : [];
+  const counts = open ? Object.fromEntries(ATM_FILTERS.map(([k]) => [k, tasks.filter((t) => match[k](t) && bySearch(t)).length])) : {};
+
+  const close = useCallback((refocus) => { setOpen(false); if (refocus && btnRef.current) btnRef.current.focus(); }, []);
+  useEffect(() => { setHi(0); }, [q, flt, open]);
+  useEffect(() => {
+    if (!open) return;
+    const id = setTimeout(() => inputRef.current && inputRef.current.focus(), 0);
+    const h = (e) => {
+      if (wrapRef.current && wrapRef.current.contains(e.target)) return;
+      if (panelRef.current && panelRef.current.contains(e.target)) return;
+      setOpen(false);
+    };
+    const k = (e) => { if (e.key === 'Escape') { e.stopPropagation(); close(true); } };
+    document.addEventListener('pointerdown', h); document.addEventListener('keydown', k);
+    return () => { clearTimeout(id); document.removeEventListener('pointerdown', h); document.removeEventListener('keydown', k); };
+  }, [open, close]);
+  useEffect(() => {
+    if (!open || !listRef.current) return;
+    const el = listRef.current.querySelector(`[data-i="${hi}"]`);
+    if (el) el.scrollIntoView({ block: 'nearest' });
+  }, [hi, open]);
+
+  const pick = (t) => { setOpen(false); setQ(''); onPick(t); };
+  const onKey = (e) => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); setHi((i) => Math.min(list.length - 1, i + 1)); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setHi((i) => Math.max(0, i - 1)); }
+    else if (e.key === 'Home' && e.target.tagName !== 'INPUT') { e.preventDefault(); setHi(0); }
+    else if (e.key === 'End' && e.target.tagName !== 'INPUT') { e.preventDefault(); setHi(list.length - 1); }
+    else if (e.key === 'Enter' && e.target.tagName === 'INPUT') { e.preventDefault(); if (list[hi]) pick(list[hi]); }
+  };
+  const optId = (i) => 'atm-opt-' + i;
+
+  const body = (
+    <div ref={panelRef} className={isMobile ? 'atm-sheet' : 'atm-pop'} role="dialog" aria-label="כל המשימות" onKeyDown={onKey}>
+      <div className="atm-top">
+        {isMobile && <div className="atm-sh"><span>כל המשימות</span><button className="btn icon ghost" onClick={() => close(true)} aria-label="סגירה"><Icon name="x" /></button></div>}
+        <div className="atm-q">
+          <Icon name="search" sm />
+          <input ref={inputRef} type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="חיפוש משימה, לקוח, הזמנה"
+            aria-label="חיפוש בכל המשימות" role="combobox" aria-expanded="true" aria-controls="atm-list" aria-autocomplete="list"
+            aria-activedescendant={list[hi] ? optId(hi) : undefined} />
+        </div>
+        <div className="atm-seg" role="group" aria-label="סינון">
+          {ATM_FILTERS.map(([k, l]) => <button key={k} type="button" aria-pressed={flt === k} onClick={() => { setFlt(k); inputRef.current && inputRef.current.focus(); }}>{l}<span className="n">{counts[k]}</span></button>)}
+        </div>
+      </div>
+      {list.length ? (
+        <ul className="atm-list" id="atm-list" role="listbox" ref={listRef} aria-label="משימות">
+          {list.map((t, i) => (
+            <li key={t.id} id={optId(i)} data-i={i} role="option" aria-selected={i === hi} className={'atm-it' + (isDone(t) ? ' done' : '')}
+              onMouseMove={() => { if (hi !== i) setHi(i); }} onClick={() => pick(t)}>
+              <span className="dot" style={{ background: STATUS[t.status].bd }} title={STATUS[t.status].label} />
+              <span className="tx">
+                <span className="tt">{t.title}</span>
+                {(t.client || t.order_ref) && <span className="mt">{[t.client, t.order_ref].filter(Boolean).join(' · ')}</span>}
+              </span>
+              {t.urgent && <span className="urg" title="דחוף"><Icon name="flag" sm /></span>}
+              <span className={'wh' + (isLate(t) ? ' late' : '')}>{shortWhen(t)}</span>
+            </li>
+          ))}
+        </ul>
+      ) : <div className="atm-empty">{qq ? 'לא נמצאו משימות תואמות.' : 'אין משימות בסינון הזה.'}</div>}
+      {!isMobile && <div className="atm-foot"><span><kbd>↑</kbd> <kbd>↓</kbd> ניווט</span><span><kbd>Enter</kbd> פתיחה</span><span><kbd>Esc</kbd> סגירה</span></div>}
+    </div>
+  );
+
+  return (
+    <div className="atm" ref={wrapRef}>
+      <button ref={btnRef} type="button" className="btn atm-btn" aria-haspopup="dialog" aria-expanded={open}
+        aria-label={`כל המשימות – ${openCount} פתוחות`} onClick={() => setOpen((o) => !o)}>
+        <Icon name="list" sm /><span className="lbl-t">כל המשימות</span><span className="cnt">{openCount}</span><span className="chev" style={{ display: 'flex' }}><Icon name="chevD" sm /></span>
+      </button>
+      {open && !isMobile && body}
+      {open && isMobile && ReactDOM.createPortal(<><div className="atm-sheet-ov" onClick={() => close(false)} />{body}</>, document.body)}
+    </div>
+  );
+}
+
+/* ================= תצוגת רשימה ================= */
+const LIST_LS = 'nadav-list-v1';
+const GROUP_BY = [['date', 'לפי תאריך'], ['status', 'לפי סטטוס'], ['cat', 'לפי קטגוריה']];
+function SearchRow({ value, setValue, results, onPick, onShowList }) {
+  const [open, setOpen] = useState(false);
+  const [hi, setHi] = useState(0);
+  const boxRef = useRef(null);
+  const q = value.trim();
+  const list = useMemo(() => [...results].sort((a, b) => {
+    const da = isDone(a) ? 1 : 0, db = isDone(b) ? 1 : 0;
+    if (da !== db) return da - db;
+    return String(a.date || '9999').localeCompare(String(b.date || '9999'));
+  }).slice(0, 30), [results]);
+  useEffect(() => { setHi(0); }, [value]);
+  useEffect(() => {
+    const h = (e) => { if (boxRef.current && !boxRef.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('pointerdown', h);
+    return () => document.removeEventListener('pointerdown', h);
+  }, []);
+  const pick = (t) => { setOpen(false); onPick(t); };
+  const onKey = (e) => {
+    if (e.key === 'Escape') { if (open && q) setOpen(false); else setValue(''); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); setOpen(true); setHi((h) => Math.min(h + 1, list.length - 1)); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setHi((h) => Math.max(h - 1, 0)); }
+    else if (e.key === 'Enter' && list[hi]) { e.preventDefault(); pick(list[hi]); }
+  };
+  const show = open && q;
+  return (
+    <div className="srow" ref={boxRef} role="search">
+      <div className="sbox">
+        <span className="sic"><Icon name="search" /></span>
+        <input type="search" value={value} placeholder="חיפוש משימה: כותרת, לקוח, מספר הזמנה, הערות"
+          aria-label="חיפוש משימות" onFocus={() => setOpen(true)}
+          onChange={(e) => { setValue(e.target.value); setOpen(true); }} onKeyDown={onKey} />
+        {value && <button className="clr" onClick={() => { setValue(''); setOpen(false); }} aria-label="ניקוי חיפוש"><Icon name="x" sm /></button>}
+      </div>
+      {show && (
+        <div className="sres" role="listbox" aria-label="תוצאות חיפוש">
+          <div className="sres-h">
+            <span>{results.length ? `${results.length} משימות נמצאו` : 'לא נמצאו משימות'}</span>
+            <span className="sp" />
+            {results.length > 0 && <button onClick={() => { setOpen(false); onShowList(); }}>הצג הכל ברשימה</button>}
+          </div>
+          {list.length === 0 && <div className="sres-empty">נסה מילה אחרת, שם לקוח או מספר הזמנה</div>}
+          {list.map((t, i) => (
+            <button key={t.id} role="option" aria-selected={i === hi} className={'sres-it' + (i === hi ? ' hi' : '')}
+              onMouseEnter={() => setHi(i)} onClick={() => pick(t)}>
+              <span className="dot" style={{ background: (STATUS[t.status] || STATUS.todo).bd }} title={(STATUS[t.status] || STATUS.todo).label} />
+              <span className="tt">{t.title}{t.client ? ' · ' + t.client : ''}</span>
+              <span className="mt">{t.date ? dayLabel(t.date) : 'ללא תאריך'}{t.order_ref ? ' · ' + t.order_ref : ''}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const DATE_GROUPS = [['late', 'באיחור'], ['today', 'היום'], ['tomorrow', 'מחר'], ['week', 'השבוע'], ['later', 'בהמשך'], ['nodate', 'ללא תאריך'], ['done', 'הושלמו']];
+function groupTasks(list, by) {
+  if (by === 'status') return STATUS_ORDER.map((s) => ({ key: s, label: STATUS[s].label, color: STATUS[s].bd, items: list.filter((t) => t.status === s).sort(byTime) }));
+  if (by === 'cat') {
+    const keys = [...Object.keys(CATS), ...[...new Set(list.map((t) => t.category))].filter((c) => !CATS[c])];
+    return keys.map((c) => ({ key: c, label: CATS[c] || c || 'ללא קטגוריה', items: list.filter((t) => t.category === c).sort(byTime) }));
+  }
+  const t0 = todayStr(), t1 = addDays(t0, 1), we = addDays(weekStartOf(t0), 7);
+  const bucket = (t) => {
+    if (isDone(t)) return 'done';
+    if (!t.date) return 'nodate';
+    if (t.date < t0) return 'late';
+    if (t.date === t0) return 'today';
+    if (t.date === t1) return 'tomorrow';
+    if (t.date < we) return 'week';
+    return 'later';
+  };
+  return DATE_GROUPS.map(([k, l]) => {
+    const items = list.filter((t) => bucket(t) === k).sort(byTime);
+    if (k === 'done') items.reverse();
+    return { key: k, label: l, items };
+  });
+}
+
+const rowWhen = (t) => {
+  if (!t.date) return 'ללא תאריך';
+  const t0 = todayStr();
+  const d = (t.date === t0 || t.date === addDays(t0, 1)) ? dayLabel(t.date) : shortWhen({ date: t.date });
+  return d + (t.start_time ? ' · ' + timeRange(t) : '');
+};
+function ListRow({ t, act }) {
+  return (
+    <div className={'lrow' + (isDone(t) ? ' isdone' : '')} style={stVars(t.status)} role="button" tabIndex={0} data-id={t.id}
+      onClick={() => act.open(t)} onKeyDown={(e) => { if (e.key === 'Enter' && e.target === e.currentTarget) act.open(t); }}>
+      <StatusChip compact status={t.status} onChange={(s) => act.update(t.id, { status: s }, `סומן "${STATUS[s].label}"`)} />
+      <div className="lrow-main">
+        <div className="lrow-t">{t.urgent && <span className="urg" title="דחוף" aria-label="דחוף"><Icon name="flag" sm /></span>}<span>{t.title}</span></div>
+        <div className="lrow-m">
+          <span className={isLate(t) ? 'late' : ''}><Icon name="clock" sm />{rowWhen(t)}</span>
+          {t.client && <span><Icon name="user" sm />{t.client}</span>}
+          {t.order_ref && <span><Icon name="hash" sm />{t.order_ref}</span>}
+        </div>
+      </div>
+      <div className="lrow-tags">
+        <CatTag c={t.category} />
+        {t.deadline && <span className="tag deadline"><Icon name="flag" sm />יעד</span>}
+      </div>
+    </div>
+  );
+}
+
+function ListView({ tasks, act, filter, setFilter }) {
+  const [prefs, setPrefs] = useState(() => {
+    const p = lsGet(LIST_LS, {});
+    return { group: GROUP_BY.some(([k]) => k === p.group) ? p.group : 'date', open: (p.open && typeof p.open === 'object') ? p.open : {} };
+  });
+  useEffect(() => { lsSet(LIST_LS, prefs); }, [prefs]);
+  const by = prefs.group;
+  const isOpenGrp = (k) => { const v = prefs.open[by + ':' + k]; return v === undefined ? !(by === 'date' && k === 'done') : v; };
+  const setGrp = (k, v) => setPrefs((p) => (isOpenGrp(k) === v ? p : { ...p, open: { ...p.open, [by + ':' + k]: v } }));
+  const shown = tasks.filter((t) => filter[t.status]);
+  const groups = groupTasks(shown, by).filter((g) => g.items.length);
+  const openN = shown.filter(isOpen).length;
+  return (
+    <section aria-label="רשימת משימות">
+      <div className="ls-top">
+        <h1 className="h1">כל המשימות <span className="sub">· {shown.length} משימות, {openN} פתוחות</span></h1>
+        <span className="spacer" />
+        <div className="ls-ctl">
+          <span className="lbl" id="ls-gb">קיבוץ</span>
+          <div className="ls-seg" role="group" aria-labelledby="ls-gb">
+            {GROUP_BY.map(([k, l]) => <button key={k} type="button" aria-pressed={by === k} onClick={() => setPrefs((p) => ({ ...p, group: k }))}>{l}</button>)}
+          </div>
+        </div>
+        <div className="ls-flt" role="group" aria-label="סינון לפי סטטוס">
+          {STATUS_ORDER.map((s) => (
+            <button key={s} type="button" style={stVars(s)} aria-pressed={!!filter[s]} onClick={() => setFilter((f) => ({ ...f, [s]: !f[s] }))}>
+              <span className="dot" style={{ background: STATUS[s].bd }} />{STATUS[s].label}<span className="n">{tasks.filter((t) => t.status === s).length}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+      {groups.map((g) => (
+        <details key={by + g.key} className={'lgrp' + (by === 'date' && g.key === 'late' ? ' late' : '')} open={isOpenGrp(g.key)} data-grp={g.key}
+          onToggle={(e) => setGrp(g.key, e.currentTarget.open)}>
+          <summary>
+            <span className="chev" style={{ display: 'flex' }}><Icon name="chevD" sm /></span>
+            {g.color && <span className="dot" style={{ background: g.color }} />}
+            {by === 'date' && g.key === 'late' && <Icon name="alert" sm />}
+            <span>{g.label}</span><span className="cnt">{g.items.length}</span>
+          </summary>
+          <div className="lrows">{g.items.map((t) => <ListRow key={t.id} t={t} act={act} />)}</div>
+        </details>
+      ))}
+      {!groups.length && <div className="panel ls-empty">אין משימות להצגה{shown.length !== tasks.length ? ' – נסה לשנות את סינון הסטטוס' : ''}.</div>}
+    </section>
+  );
+}
+
+/* ================= אפליקציה ================= */
+function App({ store, user, onLogout }) {
+  const isMobile = useIsMobile();
+  const [tasks, setTasks] = useState([]);
+  const [view, setView] = useState('today');
+  const [search, setSearch] = useState('');
+  const [drawerId, setDrawerId] = useState(null);
+  const [editing, setEditing] = useState(null);
+  const [shareCtx, setShareCtx] = useState(null);
+  const [confirm, setConfirm] = useState(null);
+  const [toastMsg, setToastMsg] = useState(null);
+  const [weekAnchor, setWeekAnchor] = useState(todayStr());
+  const [monthAnchor, setMonthAnchor] = useState(todayStr());
+  const [agendaDay, setAgendaDay] = useState(todayStr());
+  const [showWeekend, setShowWeekend] = useState(() => { try { return localStorage.getItem('nadav-weekend') === '1'; } catch (e) { return false; } });
+  const [focusId, setFocusId] = useState(null);
+  const [stFilter, setStFilter] = useState({ todo: true, bad: true, done: true, approved: true });
+  const toastTimer = useRef(null);
+
+  useEffect(() => {
+    const unsub = store.subscribe(setTasks);
+    store.init().catch((e) => toast('שגיאה בטעינה: ' + (e.message || e)));
+    return () => { unsub(); store.destroy(); };
+  }, [store]);
+  useEffect(() => { try { localStorage.setItem('nadav-weekend', showWeekend ? '1' : '0'); } catch (e) {} }, [showWeekend]);
+
+  const toast = useCallback((m) => {
+    setToastMsg(m); clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToastMsg(null), 2400);
+  }, []);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return tasks;
+    return tasks.filter((t) => [t.title, t.client, t.order_ref, t.notes].some((v) => v && String(v).toLowerCase().includes(q)));
+  }, [tasks, search]);
+
+  const act = useMemo(() => ({
+    open: (t) => setDrawerId(t.id),
+    edit: (t) => { setDrawerId(null); setEditing(t); },
+    newTask: (prefill) => setEditing({ ...blankTask(), ...prefill }),
+    share: (t) => setShareCtx({ task: t || null }),
+    async create(data, msg) {
+      try { await store.create(data); if (msg) toast(msg); return true; } catch (e) { toast('שמירה נכשלה: ' + (e.message || e)); return false; }
+    },
+    async update(id, patch, msg) {
+      try { await store.update(id, patch); if (msg) toast(msg); return true; } catch (e) { toast('עדכון נכשל: ' + (e.message || e)); return false; }
+    },
+    postpone(t) {
+      const d = addDays(t.date || todayStr(), 1);
+      act.update(t.id, { date: d }, `נדחה ל${dayLabel(d)}`);
+    },
+    askDelete(t) {
+      setConfirm({
+        text: `למחוק את המשימה "${t.title}"? אי אפשר לבטל.`,
+        onYes: async () => {
+          setConfirm(null); setDrawerId(null); setEditing(null);
+          try { await store.remove(t.id); toast('המשימה נמחקה'); } catch (e) { toast('מחיקה נכשלה: ' + (e.message || e)); }
+        },
+      });
+    },
+  }), [store, toast]);
+
+  const goWeek = (d) => { setWeekAnchor(d); setView('week'); };
+  const pickFromTicker = (t) => {
+    if (t.date) {
+      setWeekAnchor(t.date);
+      const wd = parseD(t.date).getDay();
+      if (wd >= 5 && !showWeekend) setShowWeekend(true);
+      setView('week');
+      setFocusId(null); setTimeout(() => setFocusId(t.id), 30);
+    }
+    setDrawerId(t.id);
+  };
+
+  const drawerTask = drawerId && tasks.find((t) => t.id === drawerId);
+  useEffect(() => { if (drawerId && !drawerTask && tasks.length) setDrawerId(null); }, [drawerId, drawerTask, tasks.length]);
+
+  const views = [
+    ['today', isMobile ? 'היום' : 'לוח היום', isMobile ? 'list' : 'board'],
+    ['week', 'שבוע', 'week'],
+    ['month', 'חודש', 'month'],
+    ['list', 'רשימה', 'rows'],
+    ['mail', 'מהמייל', 'inbox'],
+  ];
+
+  return (
+    <>
+      <header className="hdr">
+        <div className="hdr-in">
+          <div className="brand"><span className="brand-mark"><Icon name="check" /></span><span className="brand-t">המשימות של נדב</span></div>
+          <nav className="seg" aria-label="תצוגות">
+            {views.map(([k, l, ic]) => <button key={k} aria-pressed={view === k} className={k === 'mail' ? 'soon' : ''} onClick={() => setView(k)} aria-label={l} title={l}><Icon name={ic} sm /><span className="lbl-v">{l}</span></button>)}
+          </nav>
+          <span className="spacer" />
+          <AllTasksMenu tasks={tasks} onPick={pickFromTicker} isMobile={isMobile} />
+          <button className="btn desk" onClick={() => setShareCtx({ task: null })}><Icon name="share" sm /><span className="lbl-d">שיתוף</span></button>
+          <button className="btn primary desk" onClick={() => act.newTask({ date: view === 'today' ? todayStr() : null })} aria-label="משימה חדשה"><Icon name="plus" sm /><span className="lbl-d">משימה חדשה</span></button>
+          {isMobile && <button className="btn icon ghost" onClick={() => setShareCtx({ task: null })} aria-label="שיתוף"><Icon name="share" /></button>}
+          {onLogout && <button className="btn icon ghost" onClick={onLogout} aria-label="התנתקות" title={user && user.email}><Icon name="logout" /></button>}
+        </div>
+        <SearchRow value={search} setValue={setSearch} results={filtered} onPick={(t) => { pickFromTicker(t); }} onShowList={() => setView('list')} />
+      </header>
+      {store.mode === 'local' && <div className="banner" role="status"><Icon name="cloud" sm />מצב מקומי – חבר את Supabase לסנכרון</div>}
+
+      <main className="main">
+        {search && <p className="sub" style={{ marginTop: 0 }}>מסונן לפי "{search}" · {filtered.length} משימות</p>}
+        {view === 'today' && (isMobile
+          ? <Agenda tasks={filtered} act={act} day={agendaDay} setDay={setAgendaDay} />
+          : <TodayBoard tasks={filtered} act={act} />)}
+        {view === 'week' && <WeekView tasks={filtered} allTasks={tasks} act={act} anchor={weekAnchor} setAnchor={setWeekAnchor} showWeekend={showWeekend} setShowWeekend={setShowWeekend} focusId={focusId} isMobile={isMobile} filter={stFilter} setFilter={setStFilter} />}
+        {view === 'month' && <MonthView tasks={filtered} act={act} anchor={monthAnchor} setAnchor={setMonthAnchor} goWeek={goWeek} />}
+        {view === 'list' && <ListView tasks={filtered} act={act} filter={stFilter} setFilter={setStFilter} />}
+        {view === 'mail' && <MailView />}
+      </main>
+
+      {isMobile && view !== 'mail' && <button className="fab" onClick={() => act.newTask({ date: view === 'today' ? agendaDay : null })} aria-label="משימה חדשה"><Icon name="plus" /></button>}
+
+      <Ticker tasks={tasks} onPick={pickFromTicker} />
+
+      {isMobile && (
+        <nav className="tabbar" aria-label="תצוגות">
+          {views.map(([k, l, ic]) => <button key={k} aria-pressed={view === k} onClick={() => setView(k)}><Icon name={ic} />{l}</button>)}
+        </nav>
+      )}
+
+      {drawerTask && !editing && <TaskDrawer t={drawerTask} act={act} onClose={() => setDrawerId(null)} />}
+      {editing && <EditForm initial={editing} act={act} onClose={() => setEditing(null)} />}
+      {shareCtx && <ShareSheet task={shareCtx.task ? (tasks.find((t) => t.id === shareCtx.task.id) || shareCtx.task) : null} tasks={tasks} onClose={() => setShareCtx(null)} toast={toast} />}
+      {confirm && <ConfirmDialog text={confirm.text} onYes={confirm.onYes} onNo={() => setConfirm(null)} />}
+      {toastMsg && <div className="toast" role="status">{toastMsg}</div>}
+    </>
+  );
+}
+
+/* ================= כניסה (Supabase) ================= */
+function Login({ sb }) {
+  const [email, setEmail] = useState('');
+  const [pw, setPw] = useState('');
+  const [mode, setMode] = useState('password');
+  const [state, setState] = useState('idle');
+  const [err, setErr] = useState('');
+  const send = async (e) => {
+    e.preventDefault(); setErr(''); setState('sending');
+    if (mode === 'password') {
+      const { error } = await sb.auth.signInWithPassword({ email: email.trim(), password: pw });
+      if (error) { setErr(error.message === 'Invalid login credentials' ? 'מייל או סיסמה שגויים. אם עוד לא הגדרת סיסמה – היכנס עם קישור למייל.' : error.message); setState('idle'); }
+      return;
+    }
+    const { error } = await sb.auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: location.origin + location.pathname } });
+    if (error) { setErr(error.message); setState('idle'); } else setState('sent');
+  };
+  return (
+    <div className="panel login">
+      <div className="brand" style={{ marginBottom: 16 }}><span className="brand-mark"><Icon name="check" /></span>המשימות של נדב</div>
+      {state === 'sent' ? (
+        <><h1>בדוק את המייל</h1><p className="sub" style={{ fontSize: 15 }}>שלחנו קישור כניסה אל {email}. אפשר לפתוח אותו בכל דפדפן.</p>
+          <button className="btn" onClick={() => setState('idle')}>שליחה מחדש</button></>
+      ) : (
+        <form onSubmit={send}>
+          <h1>כניסה</h1>
+          <div role="group" aria-label="אופן כניסה" style={{ display: 'flex', gap: 4, background: '#F4F3EF', borderRadius: 10, padding: 3, margin: '8px 0 14px' }}>
+            <button type="button" className="btn" aria-pressed={mode === 'password'} onClick={() => { setMode('password'); setErr(''); }} style={{ flex: 1, minHeight: 40, border: 0, background: mode === 'password' ? '#fff' : 'transparent', fontWeight: mode === 'password' ? 600 : 400 }}>מייל וסיסמה</button>
+            <button type="button" className="btn" aria-pressed={mode === 'link'} onClick={() => { setMode('link'); setErr(''); }} style={{ flex: 1, minHeight: 40, border: 0, background: mode === 'link' ? '#fff' : 'transparent', fontWeight: mode === 'link' ? 600 : 400 }}>קישור למייל</button>
+          </div>
+          <p className="sub" style={{ fontSize: 14 }}>{mode === 'password' ? 'כניסה ראשונה? בחר "קישור למייל", ואחרי הכניסה תוכל להגדיר סיסמה.' : 'נשלח לך קישור כניסה למייל – אפשר לפתוח אותו בכל דפדפן.'}</p>
+          <div className="fld"><label htmlFor="em" className="lbl">אימייל</label><input id="em" className="inp" type="email" dir="ltr" autoComplete="username" required value={email} onChange={(e) => setEmail(e.target.value)} /></div>
+          {mode === 'password' && <div className="fld"><label htmlFor="pw" className="lbl">סיסמה</label><input id="pw" className="inp" type="password" dir="ltr" autoComplete="current-password" required value={pw} onChange={(e) => setPw(e.target.value)} /></div>}
+          {err && <div className="err">{err}</div>}
+          <button className="btn primary" type="submit" disabled={state === 'sending'} style={{ width: '100%' }}><Icon name={mode === 'password' ? 'check' : 'send'} sm />{state === 'sending' ? 'רגע…' : (mode === 'password' ? 'כניסה' : 'שלח קישור כניסה')}</button>
+        </form>
+      )}
+    </div>
+  );
+}
+
+function SupabaseRoot() {
+  const sb = useMemo(() => window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { flowType: 'implicit', storageKey: 'nadav-tasks-auth', persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }), []);
+  const [session, setSession] = useState(undefined);
+  useEffect(() => {
+    sb.auth.getSession().then(({ data }) => setSession(data.session || null));
+    const { data } = sb.auth.onAuthStateChange((_e, s) => setSession(s || null));
+    return () => data.subscription.unsubscribe();
+  }, [sb]);
+  const userId = session && session.user && session.user.id;
+  const store = useMemo(() => userId ? createSupabaseStore(sb, session.user) : null, [userId]);
+  if (session === undefined) return <div className="login sub">טוען…</div>;
+  if (!session) return <Login sb={sb} />;
+  return <>
+    <PasswordSetup sb={sb} user={session.user} />
+    <App store={store} user={session.user} onLogout={() => sb.auth.signOut()} />
+  </>;
+}
+
+function PasswordSetup({ sb, user }) {
+  const meta = (user && user.user_metadata) || {};
+  const key = 'pwbar-dismissed-' + (user && user.id);
+  const [hidden, setHidden] = useState(() => { try { return !!meta.has_password || localStorage.getItem(key) === '1'; } catch (e) { return !!meta.has_password; } });
+  const [pw, setPw] = useState('');
+  const [msg, setMsg] = useState('');
+  const [busy, setBusy] = useState(false);
+  if (hidden) return null;
+  const dismiss = () => { try { localStorage.setItem(key, '1'); } catch (e) {} setHidden(true); };
+  const save = async (e) => {
+    e.preventDefault();
+    if (pw.length < 8) { setMsg('לפחות 8 תווים'); return; }
+    setBusy(true); setMsg('');
+    const { error } = await sb.auth.updateUser({ password: pw, data: { has_password: true } });
+    setBusy(false);
+    if (error) setMsg(error.message); else { setMsg('נשמר. מעכשיו אפשר להתחבר עם מייל וסיסמה מכל דפדפן.'); setTimeout(dismiss, 2500); }
+  };
+  return (
+    <form onSubmit={save} style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, padding: '10px 16px', background: '#E9EEF9', borderBottom: '1px solid #C9D6F2', fontSize: 14 }}>
+      <span style={{ fontWeight: 600 }}>הגדר סיסמה כדי להתחבר מכל דפדפן ומהאייפון:</span>
+      <label htmlFor="newpw" className="sr-only" style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)' }}>סיסמה חדשה</label>
+      <input id="newpw" className="inp" type="password" dir="ltr" autoComplete="new-password" placeholder="סיסמה חדשה (8+ תווים)" value={pw} onChange={(e) => setPw(e.target.value)} style={{ maxWidth: 240, height: 40 }} />
+      <button className="btn primary" type="submit" disabled={busy} style={{ minHeight: 40 }}>{busy ? 'שומר…' : 'שמירה'}</button>
+      <button className="btn" type="button" onClick={dismiss} style={{ minHeight: 40 }}>לא עכשיו</button>
+      {msg && <span role="status">{msg}</span>}
+    </form>
+  );
+}
+
+function Root() {
+  const localStore = useMemo(() => CONFIGURED ? null : createLocalStore(), []);
+  if (!CONFIGURED) return <App store={localStore} />;
+  if (!window.supabase) return <div className="panel login"><h1>שגיאה</h1><p>ספריית Supabase לא נטענה. בדוק חיבור לאינטרנט.</p></div>;
+  return <SupabaseRoot />;
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<Root />);
+
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
+</script>
+</body>
+</html>

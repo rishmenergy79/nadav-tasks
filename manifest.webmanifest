@@ -1,0 +1,15 @@
+{
+  "name": "המשימות של נדב",
+  "short_name": "משימות",
+  "description": "ניהול משימות אישי – לוח יומי, שבוע וחודש",
+  "lang": "he",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F4F3EF",
+  "theme_color": "#2457C5",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
