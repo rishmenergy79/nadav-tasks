@@ -1839,7 +1839,12 @@ function Root() {
 ReactDOM.createRoot(document.getElementById('root')).render(<Root />);
 
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then((r) => r.update()).catch(() => {}));
+  // כשיוצאת גרסה חדשה – טעינה מחדש אוטומטית פעם אחת
+  let swReloaded = false;
+  const hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController && !swReloaded) { swReloaded = true; location.reload(); } });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') navigator.serviceWorker.getRegistration().then((r) => r && r.update()).catch(() => {}); });
 }
 </script>
 </body>
