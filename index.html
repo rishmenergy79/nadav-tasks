@@ -484,8 +484,8 @@ const uuid = () => (crypto && crypto.randomUUID) ? crypto.randomUUID()
   : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => { const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); });
 
 /* ================= שכבת נתונים ================= */
-const FIELDS = ['id','user_id','title','notes','client','order_ref','category','status','date','start_time','end_time','deadline','urgent','source','source_ref'];
-const blankTask = () => ({ title: '', notes: '', client: '', order_ref: '', category: 'iec', status: 'todo', date: null, start_time: null, end_time: null, deadline: false, urgent: false, source: 'manual', source_ref: null });
+const FIELDS = ['id','user_id','title','notes','client','order_ref','category','status','date','start_time','end_time','deadline','urgent','source','source_ref','remind_minutes'];
+const blankTask = () => ({ title: '', notes: '', client: '', order_ref: '', category: 'iec', status: 'todo', date: null, start_time: null, end_time: null, deadline: false, urgent: false, source: 'manual', source_ref: null, remind_minutes: null });
 function normRow(r) {
   return { ...blankTask(), ...r,
     start_time: r.start_time ? String(r.start_time).slice(0, 5) : null,
@@ -687,6 +687,7 @@ const PATHS = {
   check: 'M5 12l5 5 9-10', logout: 'M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10',
   tag: 'M3 12V4h8l10 10-8 8zM7.5 8h.01', inbox: 'M3 13h5l2 3h4l2-3h5M5 5h14l2 8v6H3v-6z',
   cloud: 'M7 18a5 5 0 1 1 1-9.9A6 6 0 0 1 19 10a4 4 0 0 1 0 8z',
+  bell: 'M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0',
   rows: 'M4 6.5l1.5 1.5L8 5.5M4 12.5L5.5 14 8 11.5M4 18.5L5.5 20 8 17.5M11 7h9M11 13h9M11 19h9',
 };
 function Icon({ name, sm, style }) {
@@ -766,6 +767,7 @@ function TaskCard({ t, onOpen, onStatus, draggable, children }) {
         {t.start_time && <span><Icon name="clock" sm />{timeRange(t)}</span>}
         {t.client && <span><Icon name="user" sm />{t.client}</span>}
         {t.order_ref && <span><Icon name="hash" sm />{t.order_ref}</span>}
+        {t.remind_minutes != null && t.date && <span title={'תזכורת: ' + remindLabel(t.remind_minutes)}><Icon name="bell" sm /></span>}
       </div>
       <div className="card-foot">
         <StatusChip status={t.status} onChange={(s) => onStatus(t, s)} />
@@ -1214,6 +1216,7 @@ function TaskDrawer({ t, act, onClose }) {
             {t.start_time && <div className="kv"><Icon name="clock" sm /><b>{timeRange(t)}</b></div>}
             {t.client && <div className="kv"><Icon name="user" sm />לקוח: <b>{t.client}</b></div>}
             {t.order_ref && <div className="kv"><Icon name="hash" sm />הזמנה: <b>{t.order_ref}</b></div>}
+            {t.remind_minutes != null && t.date && <div className="kv"><Icon name="bell" sm />תזכורת: <b>{remindLabel(t.remind_minutes)}</b></div>}
             <div className="kv"><Icon name="tag" sm /><CatTag c={t.category} />
               {t.urgent && <span className="tag urgent"><Icon name="alert" sm />דחוף</span>}
               {t.deadline && <span className="tag deadline"><Icon name="flag" sm />יעד</span>}
@@ -1235,6 +1238,9 @@ function TaskDrawer({ t, act, onClose }) {
 }
 
 /* ================= טופס עריכה ================= */
+const REMINDERS = [[null, 'ללא'], [0, 'בזמן'], [15, "15 דק'"], [30, "30 דק'"], [60, 'שעה'], [1440, 'יום לפני']];
+const remindLabel = (m) => { const r = REMINDERS.find(([v]) => v === m); return r ? (m === 0 ? 'בזמן המשימה' : m === 1440 ? 'יום לפני' : r[1] + ' לפני') : ''; };
+
 function EditForm({ initial, act, onClose }) {
   const isNew = !initial.id;
   const [f, setF] = useState(() => ({ ...blankTask(), ...initial, notes: initial.notes || '', client: initial.client || '', order_ref: initial.order_ref || '' }));
@@ -1251,7 +1257,7 @@ function EditForm({ initial, act, onClose }) {
     start_time = start_time || null; end_time = end_time || null;
     if (start_time && end_time && toMin(end_time) <= toMin(start_time)) { setErr('שעת הסיום חייבת להיות אחרי שעת ההתחלה'); return; }
     if (!f.date) { start_time = null; end_time = null; }
-    const data = { ...f, title: f.title.trim(), start_time, end_time };
+    const data = { ...f, title: f.title.trim(), start_time, end_time, remind_minutes: f.date ? (f.remind_minutes ?? null) : null };
     setSaving(true);
     const ok = isNew ? await act.create(data, 'המשימה נוספה') : await act.update(f.id, data, 'המשימה נשמרה');
     setSaving(false);
@@ -1282,6 +1288,11 @@ function EditForm({ initial, act, onClose }) {
             <div><label className="sub" htmlFor="f-et">סיום</label><input id="f-et" type="time" step="900" className="inp" value={f.end_time || ''} onChange={(e) => set('end_time', e.target.value || null)} disabled={!f.date} /></div>
           </div>
         </div>
+        {f.date && <div className="fld">
+          <span className="lbl"><Icon name="bell" sm style={{ verticalAlign: '-3px', marginInlineEnd: 4 }} />תזכורת בטלפון</span>
+          <div className="chips">{REMINDERS.map(([v, l]) => <button key={l} type="button" aria-pressed={(f.remind_minutes ?? null) === v} onClick={() => set('remind_minutes', v)}>{l}</button>)}</div>
+          {f.remind_minutes != null && !f.start_time && <div className="sub" style={{ marginTop: 6 }}>ללא שעה – התזכורת תצא ב־08:00{f.remind_minutes === 1440 ? ' ביום שלפני' : ' באותו יום'}.</div>}
+        </div>}
         <div className="fld">
           <span className="lbl">קטגוריה</span>
           <div className="chips">{Object.keys(CATS).map((c) => <button key={c} type="button" aria-pressed={f.category === c} onClick={() => set('category', c)}>{CATS[c]}</button>)}</div>
@@ -1607,7 +1618,7 @@ function ListView({ tasks, act, filter, setFilter }) {
 }
 
 /* ================= אפליקציה ================= */
-function App({ store, user, onLogout }) {
+function App({ store, user, onLogout, sb }) {
   const isMobile = useIsMobile();
   const [tasks, setTasks] = useState([]);
   const [view, setView] = useState('today');
@@ -1617,6 +1628,8 @@ function App({ store, user, onLogout }) {
   const [shareCtx, setShareCtx] = useState(null);
   const [confirm, setConfirm] = useState(null);
   const [toastMsg, setToastMsg] = useState(null);
+  const [pushOpen, setPushOpen] = useState(false);
+  const [pushSt, pushCheck] = usePushState(sb);
   const [weekAnchor, setWeekAnchor] = useState(todayStr());
   const [monthAnchor, setMonthAnchor] = useState(todayStr());
   const [agendaDay, setAgendaDay] = useState(todayStr());
@@ -1630,6 +1643,21 @@ function App({ store, user, onLogout }) {
     store.init().catch((e) => toast('שגיאה בטעינה: ' + (e.message || e)));
     return () => { unsub(); store.destroy(); };
   }, [store]);
+  // פתיחת משימה מלחיצה על התראה
+  const pendingOpen = useRef(null);
+  useEffect(() => {
+    try { const q = new URLSearchParams(location.search).get('task'); if (q) { pendingOpen.current = q; history.replaceState(null, '', location.pathname); } } catch (e) {}
+    if (!('serviceWorker' in navigator)) return;
+    const onMsg = (e) => { if (e.data && e.data.openTask) { pendingOpen.current = e.data.openTask; setTasks((x) => [...x]); } };
+    navigator.serviceWorker.addEventListener('message', onMsg);
+    return () => navigator.serviceWorker.removeEventListener('message', onMsg);
+  }, []);
+  useEffect(() => {
+    const id = pendingOpen.current;
+    if (!id) return;
+    const t = tasks.find((x) => x.id === id);
+    if (t) { pendingOpen.current = null; pickFromTicker(t); }
+  }, [tasks]);
   useEffect(() => { try { localStorage.setItem('nadav-weekend', showWeekend ? '1' : '0'); } catch (e) {} }, [showWeekend]);
 
   const toast = useCallback((m) => {
@@ -1705,6 +1733,7 @@ function App({ store, user, onLogout }) {
           <button className="btn desk" onClick={() => setShareCtx({ task: null })}><Icon name="share" sm /><span className="lbl-d">שיתוף</span></button>
           <button className="btn primary desk" onClick={() => act.newTask({ date: view === 'today' ? todayStr() : null })} aria-label="משימה חדשה"><Icon name="plus" sm /><span className="lbl-d">משימה חדשה</span></button>
           {isMobile && <button className="btn icon ghost" onClick={() => setShareCtx({ task: null })} aria-label="שיתוף"><Icon name="share" /></button>}
+          {sb && <button className="btn icon ghost" onClick={() => setPushOpen(true)} aria-label="תזכורות בטלפון" title={pushSt.on ? 'תזכורות פעילות' : 'הפעלת תזכורות בטלפון'} style={{ position: 'relative' }}><Icon name="bell" />{pushSt.ready && !pushSt.on && <span style={{ position: 'absolute', top: 8, insetInlineEnd: 8, width: 8, height: 8, borderRadius: 4, background: '#E07B1F' }} />}</button>}
           {onLogout && <button className="btn icon ghost" onClick={onLogout} aria-label="התנתקות" title={user && user.email}><Icon name="logout" /></button>}
         </div>
         <SearchRow value={search} setValue={setSearch} results={filtered} onPick={(t) => { pickFromTicker(t); }} onShowList={() => setView('list')} />
@@ -1734,6 +1763,7 @@ function App({ store, user, onLogout }) {
 
       {drawerTask && !editing && <TaskDrawer t={drawerTask} act={act} onClose={() => setDrawerId(null)} />}
       {editing && <EditForm initial={editing} act={act} onClose={() => setEditing(null)} />}
+      {pushOpen && <PushPanel sb={sb} toast={toast} onClose={() => setPushOpen(false)} onChange={pushCheck} />}
       {shareCtx && <ShareSheet task={shareCtx.task ? (tasks.find((t) => t.id === shareCtx.task.id) || shareCtx.task) : null} tasks={tasks} onClose={() => setShareCtx(null)} toast={toast} />}
       {confirm && <ConfirmDialog text={confirm.text} onYes={confirm.onYes} onNo={() => setConfirm(null)} />}
       {toastMsg && <div className="toast" role="status">{toastMsg}</div>}
@@ -1782,6 +1812,96 @@ function Login({ sb }) {
   );
 }
 
+/* ================= התראות בטלפון ================= */
+const PUSH_FN = SUPABASE_URL + '/functions/v1/personal-task-reminders';
+const b64ToU8 = (b) => { const p = '='.repeat((4 - b.length % 4) % 4); const r = atob((b + p).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from(r, (c) => c.charCodeAt(0)); };
+const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isStandalone = () => (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+const pushSupported = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+
+function usePushState(sb) {
+  const [st, setSt] = useState({ ready: false, on: false, endpoint: null });
+  const check = useCallback(async () => {
+    if (!sb || !pushSupported()) { setSt({ ready: true, on: false, endpoint: null }); return; }
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.getSubscription();
+      setSt({ ready: true, on: !!sub && Notification.permission === 'granted', endpoint: sub ? sub.endpoint : null });
+    } catch (e) { setSt({ ready: true, on: false, endpoint: null }); }
+  }, [sb]);
+  useEffect(() => { check(); }, [check]);
+  return [st, check];
+}
+
+function PushPanel({ sb, onClose, toast, onChange }) {
+  const [st, check] = usePushState(sb);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState('');
+  const needInstall = isIOS() && !isStandalone();
+  const enable = async () => {
+    setBusy(true); setMsg('');
+    try {
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') { setMsg('ההתראות נחסמו. צריך לאשר התראות לאתר בהגדרות הדפדפן ואז לנסות שוב.'); return; }
+      const { publicKey } = await fetch(PUSH_FN).then((r) => r.json());
+      const reg = await navigator.serviceWorker.ready;
+      let sub = await reg.pushManager.getSubscription();
+      if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToU8(publicKey) });
+      const j = sub.toJSON();
+      const { error } = await sb.from('personal_task_push_subs').upsert({ endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth, user_agent: navigator.userAgent.slice(0, 200) }, { onConflict: 'endpoint' });
+      if (error) throw error;
+      await check(); onChange && onChange();
+      setMsg('ההתראות הופעלו במכשיר הזה.');
+    } catch (e) { setMsg('ההפעלה נכשלה: ' + (e.message || e)); }
+    finally { setBusy(false); }
+  };
+  const test = async () => {
+    setBusy(true); setMsg('');
+    try {
+      const r = await fetch(PUSH_FN, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ test: true, endpoint: st.endpoint }) }).then((x) => x.json());
+      setMsg(r.result === 'sent' ? 'נשלחה התראת בדיקה. היא אמורה להופיע תוך כמה שניות.' : 'השליחה נכשלה. נסה לכבות ולהפעיל מחדש.');
+    } catch (e) { setMsg('השליחה נכשלה: ' + (e.message || e)); }
+    finally { setBusy(false); }
+  };
+  const disable = async () => {
+    setBusy(true); setMsg('');
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.getSubscription();
+      if (sub) { await sb.from('personal_task_push_subs').delete().eq('endpoint', sub.endpoint); await sub.unsubscribe(); }
+      await check(); onChange && onChange();
+      setMsg('ההתראות כובו במכשיר הזה.');
+    } catch (e) { setMsg('הכיבוי נכשל: ' + (e.message || e)); }
+    finally { setBusy(false); }
+  };
+  return (
+    <Modal title="תזכורות בטלפון" onClose={onClose} size="sheet">
+      {!pushSupported() && !needInstall && <p>הדפדפן הזה לא תומך בהתראות. בנייד אנדרואיד יש לפתוח בכרום.</p>}
+      {needInstall ? (
+        <div>
+          <p style={{ marginTop: 0 }}>באייפון התראות עובדות רק כשהאפליקציה מותקנת במסך הבית:</p>
+          <ol style={{ paddingInlineStart: 20, lineHeight: 1.7 }}>
+            <li>בספארי, לחץ על כפתור השיתוף בתחתית המסך.</li>
+            <li>בחר "הוסף למסך הבית".</li>
+            <li>פתח את האפליקציה מהאייקון החדש, וחזור לכאן כדי להפעיל.</li>
+          </ol>
+        </div>
+      ) : pushSupported() && (
+        <div>
+          <p style={{ marginTop: 0 }}>{st.on ? 'ההתראות פעילות במכשיר הזה.' : 'הפעל פעם אחת בכל מכשיר שבו תרצה לקבל תזכורות.'}</p>
+          <p className="sub" style={{ marginTop: 0 }}>את זמן התזכורת בוחרים בעריכת המשימה. כששמים תאריך או שעה חדשים, התזכורת זזה איתם לבד.</p>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {!st.on && <button className="btn primary" onClick={enable} disabled={busy || !st.ready}><Icon name="bell" sm />הפעלת התראות</button>}
+            {st.on && <button className="btn primary" onClick={test} disabled={busy}><Icon name="send" sm />שלח התראת בדיקה</button>}
+            {st.on && <button className="btn" onClick={disable} disabled={busy}>כיבוי במכשיר הזה</button>}
+          </div>
+        </div>
+      )}
+      {msg && <p role="status" style={{ marginBottom: 0 }}>{msg}</p>}
+    </Modal>
+  );
+}
+
 function SupabaseRoot() {
   const sb = useMemo(() => window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { flowType: 'implicit', storageKey: 'nadav-tasks-auth', persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }), []);
   const [session, setSession] = useState(undefined);
@@ -1796,7 +1916,7 @@ function SupabaseRoot() {
   if (!session) return <Login sb={sb} />;
   return <>
     <PasswordSetup sb={sb} user={session.user} />
-    <App store={store} user={session.user} onLogout={() => sb.auth.signOut()} />
+    <App store={store} user={session.user} sb={sb} onLogout={() => sb.auth.signOut()} />
   </>;
 }
 
