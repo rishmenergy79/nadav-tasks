@@ -1,6 +1,6 @@
 // Service worker מינימלי: שומר את מעטפת האפליקציה בלבד
 const PREFIX = 'nadav-tasks-shell-';
-const CACHE = PREFIX + 'v9';
+const CACHE = PREFIX + 'v10';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon.svg'];
 
 self.addEventListener('install', (e) => {
