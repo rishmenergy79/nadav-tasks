@@ -1431,7 +1431,7 @@ function AllTasksMenu({ tasks, onPick, isMobile }) {
       {list.length ? (
         <ul className="atm-list" id="atm-list" role="listbox" ref={listRef} aria-label="משימות">
           {list.map((t, i) => (
-            <li key={t.id} id={optId(i)} data-i={i} role="option" aria-selected={i === hi} className={'atm-it' + (isDone(t) ? ' done' : '')}
+            <li key={t.id} id={optId(i)} data-i={i} role="option" aria-selected={i === hi} className={'atm-it' + (t.status === 'approved' ? ' done' : '')}
               onMouseMove={() => { if (hi !== i) setHi(i); }} onClick={() => pick(t)}>
               <span className="dot" style={{ background: STATUS[t.status].bd }} title={STATUS[t.status].label} />
               <span className="tx">
@@ -1550,7 +1550,7 @@ const rowWhen = (t) => {
 };
 function ListRow({ t, act }) {
   return (
-    <div className={'lrow' + (isDone(t) ? ' isdone' : '')} style={stVars(t.status)} role="button" tabIndex={0} data-id={t.id}
+    <div className={'lrow' + (t.status === 'approved' ? ' isdone' : '')} style={stVars(t.status)} role="button" tabIndex={0} data-id={t.id}
       onClick={() => act.open(t)} onKeyDown={(e) => { if (e.key === 'Enter' && e.target === e.currentTarget) act.open(t); }}>
       <StatusChip compact status={t.status} onChange={(s) => act.update(t.id, { status: s }, `סומן "${STATUS[s].label}"`)} />
       <div className="lrow-main">
