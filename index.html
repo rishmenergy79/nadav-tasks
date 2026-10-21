@@ -719,7 +719,7 @@ function StatusChip({ status, onChange, compact }) {
     <span className="chipwrap" ref={ref} onClick={(e) => e.stopPropagation()}>
       {compact ? (
         <button type="button" className="stbtn" style={stVars(status)} aria-haspopup="menu" aria-expanded={open} aria-label={`סטטוס: ${m.label} – שינוי`} title={m.label} onClick={() => setOpen((o) => !o)} onKeyDown={(e) => e.stopPropagation()}>
-          <span className={'ring' + (isDone({ status }) ? ' fill' : '') + (status === 'bad' ? ' bad' : '')}>{status === 'approved' && <Icon name="check" />}</span>
+          <span className={'ring' + (isDone({ status }) ? ' fill' : '') + (status === 'bad' ? ' bad' : '')}>{isDone({ status }) && <Icon name="check" />}</span>
         </button>
       ) : (
         <button type="button" className="chip" style={stVars(status)} aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
